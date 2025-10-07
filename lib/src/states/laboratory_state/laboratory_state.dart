@@ -1,4 +1,4 @@
-import '../../models/laboratory_model.dart';
+import '../../models/laboratory_model/laboratory_model.dart';
 
 class LaboratoryState {
   final bool isLoading;

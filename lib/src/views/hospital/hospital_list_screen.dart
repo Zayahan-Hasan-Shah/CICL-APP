@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../core/constants/app_colors.dart';
-import '../../models/hospital_model.dart';
+import '../../models/hospital_model/hospital_model.dart';
 import '../../providers/hospital_provider/hospital_provider.dart';
 import '../../widgets/common_widgets/custom_dropdown_widget.dart';
 import '../../widgets/common_widgets/custom_text.dart';

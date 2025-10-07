@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/legacy.dart';
 
-import '../../models/hospital_model.dart';
+import '../../models/hospital_model/hospital_model.dart';
 import '../../states/hospital_state/hospital_state.dart';
 
 class HospitalController extends StateNotifier<HospitalState> {

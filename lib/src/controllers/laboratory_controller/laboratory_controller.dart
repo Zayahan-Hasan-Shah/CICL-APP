@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/legacy.dart';
 
-import '../../models/laboratory_model.dart';
+import '../../models/laboratory_model/laboratory_model.dart';
 import '../../states/laboratory_state/laboratory_state.dart';
 
 class LaboratoryController extends StateNotifier<LaboratoryState> {

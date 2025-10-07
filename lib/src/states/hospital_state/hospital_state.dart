@@ -1,4 +1,4 @@
-import '../../models/hospital_model.dart';
+import '../../models/hospital_model/hospital_model.dart';
 
 class HospitalState {
   final bool isLoading;

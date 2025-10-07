@@ -1,4 +1,4 @@
-import '../core/constants/hospital_data.dart';
+import '../../core/constants/hospital_data.dart';
 
 class PanelHospital {
   final int id;

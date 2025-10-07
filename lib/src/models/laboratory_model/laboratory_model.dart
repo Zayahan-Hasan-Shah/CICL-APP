@@ -1,4 +1,4 @@
-import '../core/constants/lab_discount_data.dart';
+import '../../core/constants/lab_discount_data.dart';
 
 class Laboratory {
   final int id;
