@@ -25,6 +25,14 @@ class _HospitalListScreenState extends ConsumerState<HospitalListScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_filterHospitals);
+
+    // Set Karachi as default city
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _selectedCity = 'Karachi';
+      });
+      ref.read(hospitalProvider.notifier).fetchHospitalsByCity('Karachi');
+    });
   }
 
   void _filterHospitals() {
@@ -60,10 +68,7 @@ class _HospitalListScreenState extends ConsumerState<HospitalListScreen> {
       backgroundColor: AppColors.whiteColor,
       appBar: AppBar(
         backgroundColor: AppColors.whiteColor,
-        title: CustomText(
-          title: 'Panel Hospitals',
-          fontSize: 18.sp,
-        ),
+        title: CustomText(title: 'Panel Hospitals', fontSize: 18.sp),
         centerTitle: true,
       ),
       body: Column(
@@ -73,7 +78,8 @@ class _HospitalListScreenState extends ConsumerState<HospitalListScreen> {
             padding: EdgeInsets.symmetric(horizontal: 16.sp, vertical: 8.sp),
             child: CustomDropdown(
               items: cities,
-              selectedItem: _selectedCity,
+              selectedItem:
+                  _selectedCity ?? 'Karachi', // Ensure Karachi is default
               onChanged: (city) {
                 setState(() => _selectedCity = city);
                 ref.read(hospitalProvider.notifier).fetchHospitalsByCity(city);
