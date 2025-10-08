@@ -30,17 +30,18 @@ class AddClaimScreen extends ConsumerStatefulWidget {
 }
 
 class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
-  final TextEditingController _billNo = TextEditingController();
-  final TextEditingController _billDate = TextEditingController();
-  final TextEditingController _billAmount = TextEditingController();
-  final TextEditingController _hosLabClinDr =
-      TextEditingController(); // Hospital/Laboratory/Clinic/DrName
-  final TextEditingController _admissionDate = TextEditingController();
-  final TextEditingController _dischargeDate = TextEditingController();
-  String? patient;
-  String? benefitType;
-  List<PlatformFile> uploadedFiles = [];
-  List<String> _patientNames = [];
+  // Multiple claim form controllers
+  List<TextEditingController> _billNoControllers = [];
+  List<TextEditingController> _billDateControllers = [];
+  List<TextEditingController> _billAmountControllers = [];
+  List<TextEditingController> _hosLabClinDrControllers = [];
+  List<TextEditingController> _admissionDateControllers = [];
+  List<TextEditingController> _dischargeDateControllers = [];
+
+  List<String?> _patients = [];
+  List<String?> _benefitTypes = [];
+  List<List<PlatformFile>> _uploadedFilesList = [];
+  List<String> _patientNames = []; // Add this line
 
   final _formKey = GlobalKey<FormState>();
 
@@ -48,6 +49,8 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
   void initState() {
     super.initState();
     _loadPatientNames();
+    // Initialize first claim form
+    _addNewClaimForm();
   }
 
   Future<void> _loadPatientNames() async {
@@ -60,29 +63,103 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
     });
   }
 
-  void _resetForm() {
-    _formKey.currentState?.reset();
-    _billNo.clear();
-    _billDate.clear();
-    _hosLabClinDr.clear();
-    _billAmount.clear();
-    _admissionDate.clear();
-    _dischargeDate.clear();
+  void _addNewClaimForm() {
     setState(() {
-      patient = null;
-      benefitType = null;
-      uploadedFiles = [];
+      _billNoControllers.add(TextEditingController());
+      _billDateControllers.add(TextEditingController());
+      _billAmountControllers.add(TextEditingController());
+      _hosLabClinDrControllers.add(TextEditingController());
+      _admissionDateControllers.add(TextEditingController());
+      _dischargeDateControllers.add(TextEditingController());
+
+      _patients.add(null);
+      _benefitTypes.add(null);
+      _uploadedFilesList.add([]);
+    });
+  }
+
+  void _removeClaimForm(int index) {
+    setState(() {
+      _billNoControllers[index].dispose();
+      _billDateControllers[index].dispose();
+      _billAmountControllers[index].dispose();
+      _hosLabClinDrControllers[index].dispose();
+      _admissionDateControllers[index].dispose();
+      _dischargeDateControllers[index].dispose();
+
+      _billNoControllers.removeAt(index);
+      _billDateControllers.removeAt(index);
+      _billAmountControllers.removeAt(index);
+      _hosLabClinDrControllers.removeAt(index);
+      _admissionDateControllers.removeAt(index);
+      _dischargeDateControllers.removeAt(index);
+
+      _patients.removeAt(index);
+      _benefitTypes.removeAt(index);
+      _uploadedFilesList.removeAt(index);
+    });
+  }
+
+  void _resetForm() {
+    // Dispose all controllers
+    for (var controller in _billNoControllers) {
+      controller.dispose();
+    }
+    for (var controller in _billDateControllers) {
+      controller.dispose();
+    }
+    for (var controller in _billAmountControllers) {
+      controller.dispose();
+    }
+    for (var controller in _hosLabClinDrControllers) {
+      controller.dispose();
+    }
+    for (var controller in _admissionDateControllers) {
+      controller.dispose();
+    }
+    for (var controller in _dischargeDateControllers) {
+      controller.dispose();
+    }
+
+    // Reset all lists
+    setState(() {
+      _billNoControllers.clear();
+      _billDateControllers.clear();
+      _billAmountControllers.clear();
+      _hosLabClinDrControllers.clear();
+      _admissionDateControllers.clear();
+      _dischargeDateControllers.clear();
+
+      _patients.clear();
+      _benefitTypes.clear();
+      _uploadedFilesList.clear();
+
+      // Add a new claim form
+      _addNewClaimForm();
     });
   }
 
   @override
   void dispose() {
-    _billNo.dispose();
-    _billDate.dispose();
-    _hosLabClinDr.dispose();
-    _billAmount.dispose();
-    _admissionDate.dispose();
-    _dischargeDate.dispose();
+    // Dispose all controllers
+    for (var controller in _billNoControllers) {
+      controller.dispose();
+    }
+    for (var controller in _billDateControllers) {
+      controller.dispose();
+    }
+    for (var controller in _billAmountControllers) {
+      controller.dispose();
+    }
+    for (var controller in _hosLabClinDrControllers) {
+      controller.dispose();
+    }
+    for (var controller in _admissionDateControllers) {
+      controller.dispose();
+    }
+    for (var controller in _dischargeDateControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -103,7 +180,7 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
         }
       }
     });
-    final state = ref.watch(addClaimProvider);
+
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       appBar: AppBar(
@@ -116,114 +193,181 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Spacer(),
-            CustomText(
-              title: 'Add Claim',
+          children: [
+            const Spacer(),
+            const CustomText(
+              title: 'Add Claims',
               weight: FontWeight.w700,
               alignText: TextAlign.center,
             ),
-            Spacer(),
+            const Spacer(),
+            IconButton(
+              icon: const Icon(Icons.add_circle_outline),
+              onPressed: _addNewClaimForm,
+              tooltip: 'Add New Claim',
+            ),
           ],
         ),
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(2.h),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  headingText("ID (Bill No)", true),
-                  SizedBox(height: 1.h),
-                  buildTextField(
-                    _billNo,
-                    'Bill Number',
-                    isValidate: true,
-                    val: AppValidation.checkText,
+        child: Form(
+          key: _formKey,
+          child: ListView.builder(
+            itemCount: _billNoControllers.length,
+            itemBuilder: (context, index) {
+              return Container(
+                margin: EdgeInsets.all(8.sp),
+                padding: EdgeInsets.all(8.sp),
+
+                child: Padding(
+                  padding: EdgeInsets.all(8.sp),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          if (_billNoControllers.length > 1)
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _removeClaimForm(index),
+                              tooltip: 'Remove Claim',
+                            ),
+                        ],
+                      ),
+                      // Existing form fields for each claim
+                      CustomTextField(
+                        controller: _billNoControllers[index],
+                        hintText: 'Bill Number',
+                        validator: AppValidation.checkText,
+                      ),
+                      SizedBox(height: 1.h),
+                      headingText("Bill Date", true),
+                      SizedBox(height: 1.h),
+                      DatePickerTextField(
+                        controller: _billDateControllers[index],
+                        hintText: 'Select Date',
+                        isValidate: true,
+                        validator: AppValidation.validatePastDate,
+                      ),
+                      SizedBox(height: 1.h),
+                      headingText("Patient", true),
+                      SizedBox(height: 1.h),
+                      CustomDropdown(
+                        selectedItem: _patients[index],
+                        items: _patientNames,
+                        onChanged: (value) {
+                          setState(() {
+                            _patients[index] = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 1.h),
+                      headingText("Benefit Type", true),
+                      SizedBox(height: 1.h),
+                      CustomDropdown(
+                        items: ["Hospital", "OPD", "Dental Treatment"],
+                        selectedItem: _benefitTypes[index],
+                        onChanged: (value) {
+                          setState(() {
+                            _benefitTypes[index] = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 1.h),
+                      headingText("Dr/Hospital", true),
+                      buildTextField(
+                        _hosLabClinDrControllers[index],
+                        'Dr/Hospital',
+                      ),
+                      SizedBox(height: 1.h),
+                      if (_benefitTypes[index] == "Hospital") ...[
+                        headingText("Admission Date", true),
+                        SizedBox(height: 1.h),
+                        DatePickerTextField(
+                          controller: _admissionDateControllers[index],
+                          hintText: 'Select Date',
+                          isValidate: true,
+                          validator: AppValidation.validatePastDate,
+                        ),
+                        SizedBox(height: 1.h),
+                        headingText("Discharge Date", true),
+                        SizedBox(height: 1.h),
+                        DatePickerTextField(
+                          controller: _dischargeDateControllers[index],
+                          hintText: 'Select Date',
+                          isValidate: true,
+                          validator: AppValidation.validatePastDate,
+                        ),
+                      ],
+                      SizedBox(height: 1.h),
+                      headingText("Bill Amount", true),
+                      SizedBox(height: 1.h),
+                      buildTextField(
+                        _billAmountControllers[index],
+                        'Bill Amount',
+                        isNoFormat: true,
+                      ),
+                      SizedBox(height: 1.h),
+                      headingText("Attachments", true),
+                      SizedBox(height: 1.h),
+                      AttachmentUploader(
+                        onFilesChanged: (files) {
+                          setState(() {
+                            _uploadedFilesList[index] = files;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 1.h),
+                      _buildRestrictions(),
+                      SizedBox(height: 1.h),
+                    ],
                   ),
-                  SizedBox(height: 1.h),
-                  headingText("Bill Date", true),
-                  SizedBox(height: 1.h),
-                  DatePickerTextField(
-                    controller: _billDate,
-                    hintText: 'Select Date',
-                    isValidate: true,
-                    validator: AppValidation.validatePastDate,
-                  ),
-                  SizedBox(height: 1.h),
-                  headingText("Patient", true),
-                  SizedBox(height: 1.h),
-                  CustomDropdown(
-                    selectedItem: patient,
-                    items: _patientNames,
-                    onChanged: (value) {
-                      setState(() {
-                        patient = value;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 1.h),
-                  headingText("Benefit Type", true),
-                  SizedBox(height: 1.h),
-                  CustomDropdown(
-                    items: ["Hospital", "OPD", "Dental Treatment"],
-                    selectedItem: benefitType,
-                    onChanged: (value) {
-                      setState(() {
-                        benefitType = value;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 1.h),
-                  headingText("Dr/Hospital", true),
-                  buildTextField(_hosLabClinDr, 'Dr/Hospital'),
-                  SizedBox(height: 1.h),
-                  if (benefitType == "Hospital") ...[
-                    headingText("Admission Date", true),
-                    SizedBox(height: 1.h),
-                    DatePickerTextField(
-                      controller: _admissionDate,
-                      hintText: 'Select Date',
-                      isValidate: true,
-                      validator: AppValidation.validatePastDate,
-                    ),
-                    SizedBox(height: 1.h),
-                    headingText("Discharge Date", true),
-                    SizedBox(height: 1.h),
-                    DatePickerTextField(
-                      controller: _dischargeDate,
-                      hintText: 'Select Date',
-                      isValidate: true,
-                      validator: AppValidation.validatePastDate,
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.all(4.h),
+        child: CustomButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              // Create multiple claims
+              final claims = List.generate(
+                _billNoControllers.length,
+                (index) => AddClaimModel(
+                  items: [
+                    ClaimItem(
+                      billNo: _billNoControllers[index].text.trim(),
+                      billDate: _billDateControllers[index].text.trim(),
+                      employeeNo: _patients[index]!,
+                      serviceCode: _benefitTypes[index].toString(),
+                      billAmount: _billAmountControllers[index].text.trim(),
+                      hospital: _hosLabClinDrControllers[index].text.trim(),
+                      admitDate: _admissionDateControllers[index].text.trim(),
+                      dischargeDate: _dischargeDateControllers[index].text
+                          .trim(),
+                      attachments: _uploadedFilesList[index]
+                          .map((f) => Attachment(File(f.path!)))
+                          .toList(),
                     ),
                   ],
-                  SizedBox(height: 1.h),
-                  headingText("Bill Amount", true),
-                  SizedBox(height: 1.h),
-                  buildTextField(_billAmount, 'Bill Amount', isNoFormat: true),
-                  SizedBox(height: 1.h),
-                  headingText("Attachments", true),
-                  SizedBox(height: 1.h),
-                  AttachmentUploader(
-                    onFilesChanged: (files) {
-                      setState(() {
-                        uploadedFiles = files;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 1.h),
-                  _buildRestrictions(),
-                  SizedBox(height: 1.h),
-                  buildAddClaimButton(),
-                  SizedBox(height: 1.h),
-                ],
-              ),
-            ),
+                ),
+              );
+
+              // Submit all claims
+              for (var claim in claims) {
+                ref.read(addClaimProvider.notifier).addClaim(claim);
+              }
+            }
+          },
+          gradient: const LinearGradient(
+            colors: [AppColors.buttonColor1, AppColors.buttonColor2],
           ),
+          text: 'Submit Claims', // Added missing text parameter
         ),
       ),
     );
@@ -311,17 +455,16 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
   void _showSuccessDialog(String message) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Success"),
+      builder: (context) => AlertDialog(
+        title: const Text('Success'),
         content: Text(message),
         actions: [
-          CustomButton(
+          TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.of(context).pop();
+              _resetForm(); // Reset form after successful submission
             },
-            fontSize: 18.sp,
-            textColor: AppColors.whiteColor,
-            text: "OK",
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -329,74 +472,41 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
   }
 
   Widget buildAddClaimButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        CustomButton(
-          text: 'Cancel',
-          fontSize: 16.sp,
-          outlined: true,
-          textColor: Colors.black,
-          backgroundColor: Colors.white,
-          borderColor: AppColors.buttonColor1,
-          onPressed: () {
-            _resetForm();
-          },
-        ),
-        CustomButton(
-          text: 'Add Claim',
-          fontSize: 15.sp,
-          textColor: AppColors.whiteColor,
-          onPressed: () async {
-            if (_formKey.currentState!.validate()) {
-              // Extra manual checks
-              if (patient == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Please select a patient")),
-                );
-                return;
-              }
-              if (benefitType == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Please select a benefit type")),
-                );
-                return;
-              }
-              if (uploadedFiles.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Please upload at least one attachment"),
-                  ),
-                );
-                return;
-              }
+    return CustomButton(
+      onPressed: () {
+        if (_formKey.currentState!.validate()) {
+          // Create multiple claims
+          final claims = List.generate(
+            _billNoControllers.length,
+            (index) => AddClaimModel(
+              items: [
+                ClaimItem(
+                  billNo: _billNoControllers[index].text.trim(),
+                  billDate: _billDateControllers[index].text.trim(),
+                  employeeNo: _patients[index]!,
+                  serviceCode: _benefitTypes[index].toString(),
+                  billAmount: _billAmountControllers[index].text.trim(),
+                  hospital: _hosLabClinDrControllers[index].text.trim(),
+                  admitDate: _admissionDateControllers[index].text.trim(),
+                  dischargeDate: _dischargeDateControllers[index].text.trim(),
+                  attachments: _uploadedFilesList[index]
+                      .map((f) => Attachment(File(f.path!)))
+                      .toList(),
+                ),
+              ],
+            ),
+          );
 
-              final claim = AddClaimModel(
-                items: [
-                  ClaimItem(
-                    billNo: _billNo.text.trim(),
-                    billDate: _billDate.text.trim(),
-                    employeeNo: patient!,
-                    serviceCode: benefitType.toString(),
-                    billAmount: _billAmount.text.trim(),
-                    hospital: _hosLabClinDr.text.trim(),
-                    admitDate: _admissionDate.text.trim(),
-                    dischargeDate: _dischargeDate.text.trim(),
-                    attachments: uploadedFiles
-                        .map((f) => Attachment(File(f.path!)))
-                        .toList(),
-                  ),
-                ],
-              );
-
-              ref.read(addClaimProvider.notifier).addClaim(claim);
-            }
-          },
-          gradient: const LinearGradient(
-            colors: [AppColors.buttonColor1, AppColors.buttonColor2],
-          ),
-        ),
-      ],
+          // Submit all claims
+          for (var claim in claims) {
+            ref.read(addClaimProvider.notifier).addClaim(claim);
+          }
+        }
+      },
+      gradient: const LinearGradient(
+        colors: [AppColors.buttonColor1, AppColors.buttonColor2],
+      ),
+      text: 'Submit Claims',
     );
   }
 }
