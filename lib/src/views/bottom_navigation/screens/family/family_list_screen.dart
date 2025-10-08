@@ -99,10 +99,10 @@ class _FamilyListScreenState extends ConsumerState<FamilyListScreen> {
                                       );
                                     },
                                     name: famMeb.name,
-                                    relation: famMeb.relation,
-                                    gender: famMeb.gender == 'F'
-                                        ? 'Female'
-                                        : 'Male',
+                                    // relation: famMeb.relation,
+                                    // gender: famMeb.gender == 'F'
+                                    //     ? 'Female'
+                                    //     : 'Male',
                                   );
                                 },
                               ),

@@ -8,15 +8,13 @@ import 'package:sizer/sizer.dart';
 class FamilyListWidget extends StatelessWidget {
   final VoidCallback onTap;
   final String name;
-  final String relation;
-  final String gender;
+  // final String relation;
+  // final String gender;
 
   const FamilyListWidget({
     super.key,
     required this.onTap,
     required this.name,
-    required this.relation,
-    required this.gender,
   });
 
   @override
@@ -38,26 +36,23 @@ class FamilyListWidget extends StatelessWidget {
           ],
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CustomText(
               title: name.toTitleCase(),
               weight: FontWeight.bold,
               fontSize: 17.sp,
-              maxLines: 1,
+              maxLines: 2,
               alignText: TextAlign.center,
             ),
             SizedBox(height: 1.h),
-            CustomText(
-              title: "Relation",
-              weight: FontWeight.w800,
-              fontSize: 16.sp,
-            ),
-            SizedBox(height: 1.h),
-            CustomText(
-              title: '$relation/$gender',
-              weight: FontWeight.w400,
-              fontSize: 16.sp,
-            ),
+            
+            // SizedBox(height: 1.h),
+            // CustomText(
+            //   title: '$relation/$gender',
+            //   weight: FontWeight.w400,
+            //   fontSize: 16.sp,
+            // ),
             SizedBox(height: 2.5.h),
             _buildDetailButton(),
           ],
