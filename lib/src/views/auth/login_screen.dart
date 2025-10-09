@@ -4,8 +4,10 @@ import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/core/validations/app_validation.dart';
 import 'package:cicl_app/src/providers/auth_provider/login_provider.dart';
+import 'package:cicl_app/src/providers/auth_provider/fingerprint_auth_provider.dart';
 import 'package:cicl_app/src/routing/routes_names.dart';
 import 'package:cicl_app/src/states/auth_state/login_state.dart';
+import 'package:cicl_app/src/states/auth_state/fingerprint_auth_state.dart';
 import 'package:cicl_app/src/widgets/common_widgets/custom_button.dart';
 import 'package:cicl_app/src/widgets/common_widgets/custom_text.dart';
 import 'package:cicl_app/src/widgets/common_widgets/custom_textfield.dart';
@@ -40,6 +42,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
+    // Remove unused fingerprintState variable
+    ref.watch(fingerprintAuthProvider);
+
+    // Fingerprint authentication listener
+    ref.listen<FingerprintAuthState>(fingerprintAuthProvider, (previous, next) {
+      if (next is FingerprintAuthSuccess) {
+        // Navigate to dashboard on successful authentication
+        context.go('/dashboardscreen', extra: 0);
+      } else if (next is FingerprintAuthError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.message), backgroundColor: Colors.red),
+        );
+      } else if (next is FingerprintAuthNotAvailable) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.message), backgroundColor: Colors.orange),
+        );
+      }
+    });
+
+    // Existing authentication state handling
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (authState is AuthError) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -47,18 +69,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             content: Text(authState.message),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.only(bottom: 20, left: 16, right: 16),
+            margin: EdgeInsets.only(bottom: 20.0, left: 16.0, right: 16.0),
           ),
         );
       }
     });
-    if (authState is AuthLoading) {
-      log("LoginScreen → AuthLoading...");
-    } else if (authState is AuthSuccess) {
-      log("LoginScreen → AuthSuccess for  [7m{authState.user.name}");
-    } else if (authState is AuthError) {
-      log("LoginScreen → AuthError:  [7m{authState.message}");
-    }
 
     return Scaffold(
       body: SafeArea(
@@ -146,10 +161,43 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                             AppColors.buttonColor2,
                                           ],
                                         ),
-                                        borderRadius: 12,
+                                        borderRadius: 12.0,
                                       ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 8.0),
+                              // Fingerprint Login Button
+                              Center(
+                                child: Column(
+                                  children: [
+                                    const CustomText(
+                                      title: 'Or login with',
+                                      fontSize: 14.0,
+                                      color: Colors.grey,
+                                    ),
+                                    SizedBox(height: 16.0),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.fingerprint,
+                                        size: 50.0,
+                                        color: AppColors.buttonColor1,
+                                      ),
+                                      onPressed: () {
+                                        ref
+                                            .read(
+                                              fingerprintAuthProvider.notifier,
+                                            )
+                                            .authenticateWithBiometrics();
+                                      },
+                                      tooltip: 'Login with Fingerprint',
+                                    ),
+                                    const CustomText(
+                                      title: 'Fingerprint Login',
+                                      fontSize: 12.0,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -197,29 +245,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     );
   }
-
-  // Future<void> _login() async {
-  //   if (_formKey.currentState?.validate() ?? false) {
-  //     final username = _emailController.text.trim();
-  //     final password = _passwordController.text.trim();
-  //     log("LoginScreen → Attempting login with $username");
-
-  //     final response = await ref
-  //         .read(authControllerProvider.notifier)
-  //         .login(username, password, ref);
-
-  //     log('Login Screen -> Response');
-  //     log('Response Body : $response');
-
-  //     if (response != null) {
-  //       context.go('/dashboardscreen');
-  //     } else {
-  //       log("LoginScreen → Login failed, response is null");
-  //     }
-  //   } else {
-  //     log("LoginScreen → Form validation failed");
-  //   }
-  // }
 
   Future<void> _login() async {
     if (_formKey.currentState?.validate() ?? false) {

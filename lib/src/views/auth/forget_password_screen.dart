@@ -39,83 +39,94 @@ class _ForgetPasswordScreenState extends ConsumerState<ForgetPasswordScreen> {
   Widget build(BuildContext context) {
     final forgotState = ref.watch(forgotPasswordControllerProvider);
 
-    ref.listen<ForgotPasswordState>(
-      forgotPasswordControllerProvider,
-      (previous, next) {
-        if (next is ForgotPasswordSuccess) {
-          _showSuccessDialog(next.message);
-        } else if (next is ForgotPasswordError) {
-          _showErrorDialog(next.message);
-        }
-      },
-    );
+    ref.listen<ForgotPasswordState>(forgotPasswordControllerProvider, (
+      previous,
+      next,
+    ) {
+      if (next is ForgotPasswordSuccess) {
+        // Show success dialog and navigate to login
+        _showSuccessDialog(next.message);
+      } else if (next is ForgotPasswordError) {
+        // Show error dialog
+        _showErrorDialog(next.message);
+      }
+    });
+
     return Scaffold(
+      backgroundColor: AppColors.whiteColor,
       body: SafeArea(
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(0.2.h),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const CompanyNameWidget(),
-                SizedBox(height: 6.h),
-                SingleChildScrollView(
-                  child: Column(
+            padding: EdgeInsets.symmetric(horizontal: 20.sp),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(height: 5.h),
+                  const CompanyNameWidget(),
+                  SizedBox(height: 5.h),
+                  SvgPicture.asset(
+                    AppAssets.claimIcon, // Use an existing icon
+                    height: 25.h,
+                  ),
+                  SizedBox(height: 3.h),
+                  CustomText(
+                    title: 'Forgot Password',
+                    fontSize: 22.sp,
+                    weight: FontWeight.bold,
+                  ),
+                  SizedBox(height: 2.h),
+                  CustomText(
+                    title: 'Enter your email to reset password',
+                    fontSize: 14.sp,
+                    color: Colors.grey,
+                  ),
+                  SizedBox(height: 3.h),
+                  CustomTextField(
+                    controller: _emailController,
+                    hintText: 'Email',
+                    validator: AppValidation.checkText,
+                    keyboardType: TextInputType.emailAddress,
+                    prefixIcon: const Icon(Icons.email_outlined),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => _emailController.clear(),
+                    ),
+                  ),
+                  SizedBox(height: 3.h),
+                  // Show loading indicator when in loading state
+                  if (forgotState is ForgotPasswordLoading)
+                    const LoadingIndicator()
+                  else
+                    CustomButton(
+                      onPressed: _forgotPassword,
+                      text: 'Reset Password',
+                      gradient: const LinearGradient(
+                        colors: [
+                          AppColors.buttonColor1,
+                          AppColors.buttonColor2,
+                        ],
+                      ),
+                    ),
+                  SizedBox(height: 2.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 4.w),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomText(
-                                title: 'Forgot Password',
-                                fontSize: 20.sp,
-                                weight: FontWeight.w500,
-                              ),
-                              SizedBox(height: 4.h),
-                              Padding(
-                                padding: EdgeInsets.only(left: 2.h),
-                                child: const CustomText(
-                                  title: 'User name or email',
-                                  fontSize: 16,
-                                  weight: FontWeight.normal,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              SizedBox(height: 0.5.h),
-                              buildEmailTextField(),
-                              SizedBox(height: 6.h),
-                              SizedBox(
-                                width: double.infinity,
-                                height: 14.w,
-                                child: forgotState is ForgotPasswordLoading
-                                    ? const Center(child: LoadingIndicator())
-                                    : CustomButton(
-                                        text: 'Send Password',
-                                        fontSize: 16.sp,
-                                        onPressed: _forgotPassword,
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            AppColors.buttonColor1,
-                                            AppColors.buttonColor2,
-                                          ],
-                                        ),
-                                        borderRadius: 12,
-                                      ),
-                              ),
-                            ],
-                          ),
+                      CustomText(title: 'Remember password? ', fontSize: 14.sp),
+                      GestureDetector(
+                        onTap: () => context.go(RoutesNames.loginScreen),
+                        child: CustomText(
+                          title: 'Login',
+                          fontSize: 14.sp,
+                          color: AppColors.buttonColor1,
+                          weight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
-                )
-              ],
+                ],
+              ),
             ),
           ),
         ),
