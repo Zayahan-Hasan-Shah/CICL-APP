@@ -46,16 +46,10 @@ class ProfileAvatar extends StatelessWidget {
                   ),
 
                   // Person icon aligned near bottom but still inside
-                  Align(
-                    alignment: const Alignment(
-                      0,
-                      3.35,
-                    ), // x=0 (center), y=0.7 (push down)
-                    child: Icon(
-                      Icons.person,
-                      color: AppColors.buttonColor1,
-                      size: 70,
-                    ),
+                  Icon(
+                    Icons.person,
+                    color: AppColors.buttonColor1,
+                    size: 70,
                   ),
                 ],
               ),

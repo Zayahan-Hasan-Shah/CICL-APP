@@ -1,6 +1,8 @@
+import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/providers/family_provider/family_provider.dart';
 import 'package:cicl_app/src/widgets/common_widgets/custom_text.dart';
 import 'package:cicl_app/src/widgets/common_widgets/loading_indicator.dart';
+import 'package:cicl_app/src/widgets/common_widgets/logout_confirmation.dart';
 import 'package:cicl_app/src/widgets/family_widget/family_entries_info.dart';
 import 'package:cicl_app/src/widgets/family_widget/family_list_widget.dart';
 import 'package:cicl_app/src/widgets/family_widget/family_search_bar.dart';
@@ -48,17 +50,26 @@ class _FamilyListScreenState extends ConsumerState<FamilyListScreen> {
       return matchText;
     }).toList();
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: AppColors.whiteColor,
+        title: CustomText(
+          title: 'My Family',
+          alignText: TextAlign.center,
+          fontSize: 20.sp,
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => showLogoutConfirmationDialog(context),
+            icon: Icon(Icons.logout_outlined, color: Colors.black, size: 24.sp),
+          ),
+        ],
+      ),
       backgroundColor: Colors.white,
       body: Container(
         child: SafeArea(
           child: Column(
             children: [
-              SizedBox(height: 2.h),
-              CustomText(
-                title: 'My Family',
-                alignText: TextAlign.center,
-                fontSize: 20.sp,
-              ),
               SizedBox(height: 1.h),
               FamilySearchBar(controller: _searchController),
               const FamilyEntriesInfo(),

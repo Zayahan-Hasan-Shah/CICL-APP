@@ -163,7 +163,18 @@ class UsedLimits {
 
   UsedLimits({required this.usedLimits});
 
-  factory UsedLimits.fromJson(Map<String, dynamic> json) {
-    return UsedLimits(usedLimits: json);
+  factory UsedLimits.fromJson(dynamic json) {
+    // If json is a list, convert to an empty map
+    if (json is List && json.isEmpty) {
+      return UsedLimits(usedLimits: {});
+    }
+    
+    // If json is a map, use it directly
+    if (json is Map<String, dynamic>) {
+      return UsedLimits(usedLimits: json);
+    }
+    
+    // If json is null or unexpected type, return an empty map
+    return UsedLimits(usedLimits: {});
   }
 }

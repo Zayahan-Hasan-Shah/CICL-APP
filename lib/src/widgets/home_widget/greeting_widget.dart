@@ -4,10 +4,11 @@ import 'package:sizer/sizer.dart';
 
 class GreetingWidget extends StatelessWidget {
   final String? name;
-  const GreetingWidget({super.key, this.name = ''});
+  const GreetingWidget({super.key, this.name});
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       width: 40.h,
       margin: EdgeInsets.all(0.5.h),

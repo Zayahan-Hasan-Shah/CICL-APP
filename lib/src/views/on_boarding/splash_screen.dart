@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/core/constants/app_launcher_manager.dart';
+import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/routing/routes_names.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -38,10 +39,28 @@ class _SplashScreenState extends State<SplashScreen>
         if (firstLaunch) {
           context.go(RoutesNames.onBoardingScreen);
         } else {
-          context.go(RoutesNames.loginScreen);
+          // Check for existing valid login token
+          final storageService = StorageService();
+          final isLoggedIn = await storageService.isTokenValid();
+
+          if (isLoggedIn) {
+            // Check remaining token validity
+            final remainingValidity = await storageService.getTokenRemainingValidity();
+            
+            if (remainingValidity != null) {
+              log('Token is valid. Remaining validity: $remainingValidity');
+              context.go(RoutesNames.dashboardScreen, extra: 0);
+            } else {
+              // Token expired, go to login
+              context.go(RoutesNames.loginScreen);
+            }
+          } else {
+            context.go(RoutesNames.loginScreen);
+          }
         }
       } catch (e) {
         log(e.toString());
+        context.go(RoutesNames.loginScreen);
       }
     });
   }

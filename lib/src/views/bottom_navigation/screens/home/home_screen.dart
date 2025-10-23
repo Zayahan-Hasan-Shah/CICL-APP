@@ -1,5 +1,8 @@
+import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/core/constants/dummy_data.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
+import 'package:cicl_app/src/widgets/common_widgets/custom_text.dart';
+import 'package:cicl_app/src/widgets/common_widgets/logout_confirmation.dart';
 import 'package:cicl_app/src/widgets/home_widget/greeting_widget.dart';
 import 'package:cicl_app/src/widgets/home_widget/info_card_widget.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +36,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: AppColors.whiteColor,
+        title: CustomText(title: "Home", fontSize: 18.sp),
+        actions: [
+          IconButton(
+            onPressed: () => showLogoutConfirmationDialog(context),
+            icon: Icon(Icons.logout_outlined, color: Colors.black, size: 24.sp),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -46,25 +60,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 2.h),
                 alignment: Alignment.center,
                 child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 20,
-                      mainAxisSpacing: 16,
-                      // childAspectRatio: 1.0,
-                    ),
-                    itemCount: dummyInfoCardData.length,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      final info = dummyInfoCardData[index];
-                      return InfoCardWidget(
-                        icon: info["icon"],
-                        title: info["title"],
-                        onTap: info["onTap"],
-                        iconBgColor: info["iconBgColor"],
-                      );
-                    }),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 20,
+                    mainAxisSpacing: 16,
+                    // childAspectRatio: 1.0,
+                  ),
+                  itemCount: dummyInfoCardData.length,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    final info = dummyInfoCardData[index];
+                    return InfoCardWidget(
+                      icon: info["icon"],
+                      title: info["title"],
+                      onTap: info["onTap"],
+                      iconBgColor: info["iconBgColor"],
+                    );
+                  },
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),

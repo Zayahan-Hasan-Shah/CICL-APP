@@ -213,6 +213,7 @@ import 'package:cicl_app/src/widgets/claim_widget/claim_list_widget.dart';
 import 'package:cicl_app/src/widgets/claim_widget/claim_search_bar.dart';
 import 'package:cicl_app/src/widgets/common_widgets/custom_text.dart';
 import 'package:cicl_app/src/widgets/common_widgets/loading_indicator.dart';
+import 'package:cicl_app/src/widgets/common_widgets/logout_confirmation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -296,15 +297,24 @@ class _ClaimListScreenState extends ConsumerState<ClaimListScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: AppColors.whiteColor,
+        title: CustomText(
+          title: 'My Claims',
+          alignText: TextAlign.center,
+          fontSize: 20.sp,
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => showLogoutConfirmationDialog(context),
+            icon: Icon(Icons.logout_outlined, color: Colors.black, size: 24.sp),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            SizedBox(height: 2.h),
-            CustomText(
-              title: 'My Claims',
-              alignText: TextAlign.center,
-              fontSize: 20.sp,
-            ),
             // Search + Calendar
             ClaimSearchBar(
               controller: _searchController,
