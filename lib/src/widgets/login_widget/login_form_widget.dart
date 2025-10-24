@@ -93,6 +93,14 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
         log('Response Body : $response');
 
         if (response != null) {
+          // Show success SnackBar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Login successful'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
           // If fingerprint login is enabled, set it up
           if (_enableFingerprintLogin && widget.enableFingerprintOption) {
             // Show a dialog to confirm fingerprint login setup
@@ -141,9 +149,33 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
             context.go('/dashboardscreen', extra: 0);
           }
         } else {
+          // Show error SnackBar for login failure
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                ref.read(authControllerProvider) is AuthError
+                  ? (ref.read(authControllerProvider) as AuthError).message
+                  : 'Login failed. Please try again.',
+                style: TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+            ),
+          );
           log("LoginScreen → Login failed, response is null");
         }
       } catch (e, st) {
+        // Show error SnackBar for any unexpected exceptions
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'An unexpected error occurred: $e',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
         log("LoginScreen → Exception during login: $e\n$st");
       }
     } else {
@@ -227,15 +259,25 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
             height: 14.w,
             child: authState is AuthLoading
                 ? const Center(child: LoadingIndicator())
-                : CustomButton(
-                    text: 'Sign In',
-                    fontSize: 16.sp,
-                    onPressed: _login,
-                    gradient: const LinearGradient(
-                      colors: [AppColors.buttonColor1, AppColors.buttonColor2],
-                    ),
-                    borderRadius: 12,
-                  ),
+                : authState is AuthError
+                    ? CustomButton(
+                        text: 'Sign In',
+                        fontSize: 16.sp,
+                        onPressed: _login,
+                        gradient: const LinearGradient(
+                          colors: [AppColors.buttonColor1, AppColors.buttonColor2],
+                        ),
+                        borderRadius: 12,
+                      )
+                    : CustomButton(
+                        text: 'Sign In',
+                        fontSize: 16.sp,
+                        onPressed: _login,
+                        gradient: const LinearGradient(
+                          colors: [AppColors.buttonColor1, AppColors.buttonColor2],
+                        ),
+                        borderRadius: 12,
+                      ),
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:cicl_app/src/controllers/exception_controller/exception_controller.dart';
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/models/user_model/user_model.dart';
@@ -95,6 +96,38 @@ class AuthController extends StateNotifier<AuthState> {
     state = AuthLoading();
 
     try {
+      final user = await _performLoginApi(username, password);
+      if (user != null) {
+        // Save critical user data immediately
+        await _saveEssentialUserData(user);
+        // Trigger background data fetching without awaiting
+        _fetchAdditionalDataAsync(ref, user);
+
+        state = AuthSuccess(user);
+        return user;
+      } else {
+        // Explicitly handle null user (invalid credentials)
+        state = AuthError("Invalid credentials. Please try again.");
+      }
+    } catch (e, stackTrace) {
+      // Detailed error handling
+      log("AuthController → Login error: $e");
+      log("AuthController → Stack trace: $stackTrace");
+      
+      if (e is NetworkException) {
+        state = AuthError(e.message);
+      } else {
+        state = AuthError("An unexpected error occurred. Please try again.");
+      }
+    }
+
+    return null;
+  }
+
+  Future<UserModel?> _performLoginApi(String username, String password) async {
+    log("AuthController → Login started for $username");
+
+    try {
       log("*** API URL : ${ApiUrl.loginUrl} ***");
       final response = await http.post(
         Uri.parse(ApiUrl.loginUrl),
@@ -112,79 +145,75 @@ class AuthController extends StateNotifier<AuthState> {
           // error response
           final message = data["message"] ?? "Invalid credentials";
           log("AuthController → Login failed: $message");
-          state = AuthError(message);
           return null;
         } else {
           // success response (user object)
           final user = UserModel.fromJson(data);
           log("AuthController → Login success: ${user.name}");
-          
-          // Save JWT token with 60-day validity
-          await _storageService.saveJwtToken(
-            token: user.accessToken,
-            username: user.name,
-          );
 
-          // Explicitly save card number and name
-          // Ensure card number is saved even if it might be null
-          if (user.cardNumber != null && user.cardNumber.isNotEmpty) {
-            log("AuthController → Attempting to save card number: ${user.cardNumber}");
-            await _storageService.saveCardNumber(user.cardNumber);
-            log("AuthController → Login Card Number: ${user.cardNumber}");
-          } else {
-            log('Warning: Received empty card number during login');
-          }
-          
-          await _storageService.saveName(user.name);
-
-          // Fetch family members
-          final familyController = ref.read(
-            familyMemberControllerProvider.notifier,
-          );
-
-          // Fetch claim controller
-          final claimController = ref.read(claimControllerProvider.notifier);
-
-          // calling family controller
-          await familyController.fetchFamilyMembers();
-          // calling claim controller
-          await claimController.fetchClaims(page: 0, pageSize: 10);
-
-          // Get family names from state
-          final familyState = ref.read(familyMemberControllerProvider);
-          final familyNames = familyState.family.map((e) => e.name).toList();
-
-          // Save both user + family names together
-          await _storageService.saveUserAndFamilyNames(
-            userName: user.name,
-            familyNames: familyNames,
-          );
-
-          state = AuthSuccess(user);
           return user;
         }
       }
     } on SocketException catch (e) {
       log("AuthController → Network error: $e");
-      state = AuthError("No Internet connection. Please check your network.");
-      return null;
+      throw NetworkException(
+        "No Internet connection. Please check your network.",
+      );
     } on TimeoutException catch (e) {
       log("AuthController → Request timed out: $e");
-      state = AuthError("The request timed out. Please try again.");
-      return null;
+      throw NetworkException("The request timed out. Please try again.");
     } on FormatException catch (e) {
       log("AuthController → Response format error: $e");
-      state = AuthError("Invalid response format from the server.");
-      return null;
+      throw NetworkException("Invalid response format from the server.");
     } on HttpException catch (e) {
       log("AuthController → HTTP error: $e");
-      state = AuthError("Server returned an invalid response.");
-      return null;
+      throw NetworkException("Server returned an invalid response.");
     } catch (e, stackTrace) {
       log("AuthController → Unexpected exception: $e");
       log("AuthController → Stack trace: $stackTrace");
-      state = AuthError("An unexpected error occurred. Please try again.");
-      return null;
+      throw UnexpectedException(
+        "An unexpected error occurred. Please try again.",
+      );
     }
+
+    return null;
+  }
+
+  Future<void> _saveEssentialUserData(UserModel user) async {
+    await Future.wait([
+      _storageService.saveJwtToken(
+        token: user.accessToken,
+        username: user.name,
+      ),
+      _storageService.saveCardNumber(user.cardNumber),
+      _storageService.saveName(user.name),
+    ]);
+  }
+
+  void _fetchAdditionalDataAsync(WidgetRef ref, UserModel user) {
+    // Use Future.microtask to run these in the background
+    Future.microtask(() async {
+      try {
+        // These calls won't block the login process
+        await ref
+            .read(familyMemberControllerProvider.notifier)
+            .fetchFamilyMembers();
+        await ref
+            .read(claimControllerProvider.notifier)
+            .fetchClaims(page: 0, pageSize: 10);
+
+        // Save additional data after fetching
+        final familyState = ref.read(familyMemberControllerProvider);
+        final familyNames = familyState.family.map((e) => e.name).toList();
+
+        await _storageService.saveUserAndFamilyNames(
+          userName: user.name,
+          familyNames: familyNames,
+        );
+      } catch (e) {
+        log("Background data fetch error: $e");
+        // Silently handle errors to not disrupt user experience
+      }
+    });
   }
 }
