@@ -194,13 +194,13 @@ class AuthController extends StateNotifier<AuthState> {
     // Use Future.microtask to run these in the background
     Future.microtask(() async {
       try {
+        // Capture providers before potential widget unmounting
+        final familyProvider = ref.read(familyMemberControllerProvider.notifier);
+        final claimProvider = ref.read(claimControllerProvider.notifier);
+
         // These calls won't block the login process
-        await ref
-            .read(familyMemberControllerProvider.notifier)
-            .fetchFamilyMembers();
-        await ref
-            .read(claimControllerProvider.notifier)
-            .fetchClaims(page: 0, pageSize: 10);
+        await familyProvider.fetchFamilyMembers();
+        await claimProvider.fetchClaims(page: 0, pageSize: 10);
 
         // Save additional data after fetching
         final familyState = ref.read(familyMemberControllerProvider);
