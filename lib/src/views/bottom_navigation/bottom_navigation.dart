@@ -37,22 +37,22 @@ class _BottomNavigationState extends ConsumerState<BottomNavigation> {
           BottomNavItem(
             activeIcon: AppAssets.homeActiveIcon,
             inactiveIcon: AppAssets.homeInacticeIcon,
-            label: '',
+            label: 'Home',
           ),
           BottomNavItem(
             activeIcon: AppAssets.familyActiveIcon,
             inactiveIcon: AppAssets.familyInactiveIcon,
-            label: '',
+            label: 'Family',
           ),
           BottomNavItem(
             activeIcon: AppAssets.claimActiveIcon,
             inactiveIcon: AppAssets.claimInactiveIcon,
-            label: '',
+            label: 'Claim',
           ),
           BottomNavItem(
             activeIcon: AppAssets.profileActiveIcon,
             inactiveIcon: AppAssets.profielInActiveIcon,
-            label: '',
+            label: 'Profile',
           ),
         ],
       ),
