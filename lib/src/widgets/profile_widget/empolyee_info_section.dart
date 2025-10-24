@@ -24,8 +24,6 @@ class EmployeeInfoSection extends StatelessWidget {
           _divider(),
           ProfileDetailCard(label: 'Employee ID', value: data.employeeId),
           _divider(),
-          ProfileDetailCard(label: 'CNIC', value: data.cnic),
-          _divider(),
           ProfileDetailCard(label: 'Room Limit', value: data.limits.roomLimit),
           _divider(),
           ProfileDetailCard(label: 'Normal Delivery', value: data.limits.normalDelivery),

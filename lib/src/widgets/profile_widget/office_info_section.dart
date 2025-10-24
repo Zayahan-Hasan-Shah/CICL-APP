@@ -27,6 +27,8 @@ class OfficeInfoSection extends StatelessWidget {
           _divider(),
           ProfileDetailCard(label: 'Expiry Date', value: data.expiryDate),
           _divider(),
+          ProfileDetailCard(label: 'CNIC', value: data.cnic),
+          _divider(),
           ProfileDetailCard(label: 'Employee Name', value: data.employeeName.toTitleCase()),
           _divider(),
           ProfileDetailCard(label: 'Designation', value: data.employeeDesignation),
