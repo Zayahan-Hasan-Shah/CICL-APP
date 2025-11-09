@@ -15,4 +15,5 @@ class RoutesNames {
   static const addClaimScreen = '/addclaimscreen';
   static const hospitalListScreen = '/hospitallistscreen';
   static const laboratoryListScreen = '/laboratorylistscreen';
+  static const bmiScreen = '/bmiscreen';
 }

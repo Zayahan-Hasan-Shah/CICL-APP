@@ -2,6 +2,7 @@ import 'package:cicl_app/src/models/family_model/family_model.dart';
 import 'package:cicl_app/src/routing/routes_names.dart';
 import 'package:cicl_app/src/views/auth/forget_password_screen.dart';
 import 'package:cicl_app/src/views/auth/login_screen.dart';
+import 'package:cicl_app/src/views/bmi/bmi_screen.dart';
 import 'package:cicl_app/src/views/bottom_navigation/bottom_navigation.dart';
 import 'package:cicl_app/src/views/bottom_navigation/screens/claim/add_claim_screen.dart';
 import 'package:cicl_app/src/views/bottom_navigation/screens/claim/claim_Detail_screen.dart';
@@ -45,11 +46,6 @@ class AppRouter {
           return BottomNavigation(initialIndex: initialIndex);
         },
       ),
-      // GoRoute(
-      //   path: RoutesNames.dashboardScreen,
-      //   name: RoutesNames.dashboardScreen,
-      //   builder: (context, state) => const BottomNavigation(),
-      // ),
       GoRoute(
         path: RoutesNames.homeScreen,
         name: RoutesNames.homeScreen,
@@ -123,6 +119,11 @@ class AppRouter {
         path: RoutesNames.laboratoryListScreen,
         name: RoutesNames.laboratoryListScreen,
         builder: (context, state) => const LaboratoryListScreen(),
+      ),
+      GoRoute(
+        path: RoutesNames.bmiScreen,
+        name: RoutesNames.bmiScreen,
+        builder: (context, state) => const BmiScreen(),
       ),
     ],
   );
