@@ -63,7 +63,7 @@ class InfoCardWidget extends ConsumerWidget {
   Widget _buildTitle(String title) {
     return CustomText(
       title: title,
-      fontSize: 17.sp,
+      fontSize: 16.sp,
       weight: FontWeight.w600,
       alignText: TextAlign.center,
     );

@@ -24,40 +24,40 @@ class LimitSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Limit Types
-          CustomText(
-            title: "Limit Type Descriptions",
-            fontSize: 16.sp,
-            color: AppColors.buttonColor1,
-            weight: FontWeight.w600,
-          ),
-          SizedBox(height: 1.h),
-          ...data.limitTypes.entries
-              .map(
-                (entry) => Padding(
-                  padding: EdgeInsets.symmetric(vertical: 0.5.h),
-                  child: Row(
-                    children: [
-                      Text(
-                        "${entry.key}: ",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15.sp,
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          entry.value,
-                          style: TextStyle(fontSize: 15.sp),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-              .toList(),
+          // CustomText(
+          //   title: "Limit Type Descriptions",
+          //   fontSize: 16.sp,
+          //   color: AppColors.buttonColor1,
+          //   weight: FontWeight.w600,
+          // ),
+          // SizedBox(height: 1.h),
+          // ...data.limitTypes.entries
+          //     .map(
+          //       (entry) => Padding(
+          //         padding: EdgeInsets.symmetric(vertical: 0.5.h),
+          //         child: Row(
+          //           children: [
+          //             Text(
+          //               "${entry.key}: ",
+          //               style: TextStyle(
+          //                 fontWeight: FontWeight.w600,
+          //                 fontSize: 15.sp,
+          //               ),
+          //             ),
+          //             Expanded(
+          //               child: Text(
+          //                 entry.value,
+          //                 style: TextStyle(fontSize: 15.sp),
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     )
+          //     .toList(),
 
-          // Divider
-          Divider(height: 2.h, color: Colors.grey),
+          // // Divider
+          // Divider(height: 2.h, color: Colors.grey),
 
           // Limits
           CustomText(

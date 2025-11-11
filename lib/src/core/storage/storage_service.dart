@@ -1,3 +1,4 @@
+import 'package:cicl_app/src/models/family_model/family_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:developer';
@@ -8,7 +9,8 @@ class StorageService {
   static const _tokenExpiry = 'token_expiry';
   static const _familyNames = 'family_names';
   static const _cardNumber = 'card_number';
-  
+  static const _claimSeqNos = 'claim_seq_nos';
+
   // New constants for fingerprint login
   static const _fingerprintEmail = 'fingerprint_email';
   static const _fingerprintPassword = 'fingerprint_password';
@@ -28,11 +30,11 @@ class StorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final name = prefs.getString(_userame);
-      
+
       if (name == null || name.isEmpty) {
         log('No user name found in storage');
       }
-      
+
       return name;
     } catch (e) {
       log('Error retrieving user name: $e', error: e);
@@ -50,23 +52,35 @@ class StorageService {
     return prefs.getString(_accesstoken);
   }
 
+  Future<void> saveClaimSeqNos(List<String> claimSeqNos) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_claimSeqNos, claimSeqNos);
+  }
+  Future<List<String>> getClaimSeqNos() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(_claimSeqNos) ?? [];
+  }
+
   Future<void> saveFamilyNames(List<String> familyNames) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_familyNames, familyNames);
   }
 
-  Future<List<String>> getFamilyNames() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList(_familyNames) ?? [];
-  }
-
   Future<void> saveUserAndFamilyNames({
     required String userName,
-    required List<String> familyNames,
+    required List<FamilyModel> familyNames,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userame, userName);
-    await prefs.setStringList(_familyNames, familyNames);
+    await prefs.setStringList(
+      _familyNames,
+      familyNames.map((e) => e.name).toList(),
+    );
+  }
+
+  Future<List<String>> getFamilyNames() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(_familyNames) ?? [];
   }
 
   // Ensure card number is always saved with validation
@@ -97,11 +111,11 @@ class StorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final cardNumber = await prefs.getString(_cardNumber);
-      
+
       if (cardNumber == null || cardNumber.isEmpty) {
         log('No card number found in storage');
       }
-      
+
       return cardNumber;
     } catch (e) {
       log('Error retrieving card number: $e', error: e);
@@ -115,7 +129,7 @@ class StorageService {
     required String username,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Calculate expiry date (60 days from now)
     final expiryDate = DateTime.now().add(const Duration(days: 60));
 
@@ -127,7 +141,7 @@ class StorageService {
   // Check if token is valid
   Future<bool> isTokenValid() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Check if token exists
     final token = prefs.getString(_accesstoken);
     if (token == null) return false;
@@ -149,22 +163,20 @@ class StorageService {
   // Get remaining token validity
   Future<Duration?> getTokenRemainingValidity() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     final expiryString = prefs.getString(_tokenExpiry);
     if (expiryString == null) return null;
 
     final expiryDate = DateTime.parse(expiryString);
     final now = DateTime.now();
 
-    return expiryDate.isAfter(now) 
-      ? expiryDate.difference(now) 
-      : null;
+    return expiryDate.isAfter(now) ? expiryDate.difference(now) : null;
   }
 
   // Refresh token (extend validity)
   Future<void> refreshToken() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Check if current token exists
     final currentToken = prefs.getString(_accesstoken);
     if (currentToken == null) return;
@@ -178,7 +190,7 @@ class StorageService {
   Future<void> enableFingerprintLogin(String email, String password) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // Ensure both email and password are valid
       if (email.isEmpty || password.isEmpty) {
         log('Cannot enable fingerprint login with empty credentials');
@@ -188,7 +200,7 @@ class StorageService {
       // Basic obfuscation (NOT secure encryption - for production, use more robust encryption)
       final encodedEmail = base64Encode(utf8.encode(email));
       final encodedPassword = base64Encode(utf8.encode(password));
-      
+
       // Explicitly set all required keys
       await prefs.setString(_fingerprintEmail, encodedEmail);
       await prefs.setString(_fingerprintPassword, encodedPassword);
@@ -204,7 +216,9 @@ class StorageService {
       log('Password stored: ${storedPassword != null}');
       log('Enabled flag: $storedEnabled');
 
-      if (storedEmail == null || storedPassword == null || storedEnabled != true) {
+      if (storedEmail == null ||
+          storedPassword == null ||
+          storedEnabled != true) {
         log('Failed to completely store fingerprint login credentials');
         throw Exception('Credential storage failed');
       }
@@ -218,11 +232,11 @@ class StorageService {
 
   Future<void> disableFingerprintLogin() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      
-      await prefs.remove(_fingerprintEmail);
-      await prefs.remove(_fingerprintPassword);
-      await prefs.remove(_fingerprintEnabled);
+      // final prefs = await SharedPreferences.getInstance();
+
+      // await prefs.remove(_fingerprintEmail);
+      // await prefs.remove(_fingerprintPassword);
+      // await prefs.remove(_fingerprintEnabled);
 
       log('Fingerprint login disabled');
     } catch (e) {
@@ -234,14 +248,14 @@ class StorageService {
   Future<bool> isFingerprintLoginEnabled() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // Check multiple conditions
       final isEnabledFlag = prefs.getBool(_fingerprintEnabled) ?? false;
       final hasEmail = prefs.getString(_fingerprintEmail) != null;
       final hasPassword = prefs.getString(_fingerprintPassword) != null;
 
       final isEnabled = isEnabledFlag && hasEmail && hasPassword;
-      
+
       log('Comprehensive fingerprint login status check:');
       log('Enabled Flag: $isEnabledFlag');
       log('Email Stored: $hasEmail');
@@ -266,15 +280,15 @@ class StorageService {
   Future<Map<String, String>?> getFingerprintCredentials() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       final encodedEmail = prefs.getString(_fingerprintEmail);
       final encodedPassword = prefs.getString(_fingerprintPassword);
-      
+
       if (encodedEmail == null || encodedPassword == null) {
         log('No saved fingerprint credentials found');
         return null;
       }
-      
+
       // Decode credentials with additional error handling
       String? email;
       String? password;
@@ -292,12 +306,9 @@ class StorageService {
         log('Decoded credentials are empty');
         return null;
       }
-      
+
       log('Fingerprint credentials retrieved successfully');
-      return {
-        'email': email,
-        'password': password,
-      };
+      return {'email': email, 'password': password};
     } catch (e) {
       log('Error retrieving fingerprint credentials: $e', error: e);
       return null;
@@ -308,22 +319,24 @@ class StorageService {
   Future<void> clearAllData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // Remove specific keys related to user session
       await prefs.remove(_familyNames);
-      
+
       // Preserve fingerprint login credentials
       final fingerprintEmail = prefs.getString(_fingerprintEmail);
       final fingerprintPassword = prefs.getString(_fingerprintPassword);
       final fingerprintEnabled = prefs.getBool(_fingerprintEnabled);
 
       // Remove user-specific tokens and names
-      await prefs.remove(_userame);
-      await prefs.remove(_accesstoken);
-      await prefs.remove(_tokenExpiry);
+      // await prefs.remove(_userame);
+      // await prefs.remove(_accesstoken);
+      // await prefs.remove(_tokenExpiry);
 
       log('Partial local storage data cleared');
-      log('Preserved Fingerprint Credentials: ${fingerprintEmail != null}, Enabled: $fingerprintEnabled');
+      log(
+        'Preserved Fingerprint Credentials: ${fingerprintEmail != null}, Enabled: $fingerprintEnabled, Access Token: ${prefs.getString(_accesstoken)}',
+      );
     } catch (e) {
       log('Error clearing local storage: $e', error: e);
       rethrow;
@@ -334,7 +347,7 @@ class StorageService {
   Future<void> fullLogout() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // Preserve fingerprint login credentials
       final fingerprintEmail = prefs.getString(_fingerprintEmail);
       final fingerprintPassword = prefs.getString(_fingerprintPassword);
@@ -344,8 +357,8 @@ class StorageService {
       await prefs.clear();
 
       // Restore fingerprint login credentials if they exist
-      if (fingerprintEmail != null && 
-          fingerprintPassword != null && 
+      if (fingerprintEmail != null &&
+          fingerprintPassword != null &&
           fingerprintEnabled == true) {
         await prefs.setString(_fingerprintEmail, fingerprintEmail);
         await prefs.setString(_fingerprintPassword, fingerprintPassword);
@@ -364,7 +377,7 @@ class StorageService {
   // Optional: Method to verify if user is logged out
   Future<bool> isLoggedOut() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_userame) == null && 
-           prefs.getString(_accesstoken) == null;
+    return prefs.getString(_userame) == null &&
+        prefs.getString(_accesstoken) == null;
   }
 }

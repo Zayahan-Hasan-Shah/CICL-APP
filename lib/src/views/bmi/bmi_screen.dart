@@ -96,6 +96,7 @@ class _BmiScreenState extends ConsumerState<BmiScreen> {
           onPressed: () => context.pop(),
           icon: const Icon(Icons.chevron_left_outlined),
         ),
+        backgroundColor: AppColors.whiteColor,
         title: CustomText(title: "BMI", fontSize: 18.sp),
       ),
       body: GestureDetector(

@@ -59,7 +59,8 @@ class ClaimController extends StateNotifier<ClaimState> {
         final List<dynamic> result = data["result"] ?? [];
 
         final claims = result.map((e) => Claim.fromJson(e)).toList();
-
+        final claimSeqNos = claims.map((e) => e.clmseqnos.toString()).toList();
+        await StorageService().saveClaimSeqNos(claimSeqNos);
         state = state.copyWith(
           loading: false,
           claims: claims,

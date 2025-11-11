@@ -8,7 +8,6 @@ class GreetingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       width: 40.h,
       margin: EdgeInsets.all(0.5.h),
@@ -19,7 +18,7 @@ class GreetingWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CustomText(
-                title: 'Hello! Mr. $name',
+                title: '$name',
                 fontSize: 18.sp,
                 weight: FontWeight.w600,
               ),

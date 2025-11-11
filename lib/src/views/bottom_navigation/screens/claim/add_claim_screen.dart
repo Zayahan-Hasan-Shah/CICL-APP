@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:developer';
 
 import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
@@ -43,6 +44,22 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
   List<List<PlatformFile>> _uploadedFilesList = [];
   List<String> _patientNames = []; // Add this line
 
+  bool _declarationAccepted = false;
+
+  // Add restriction map for benefit types
+  final Map<String, List<String>> _benefitTypeRestrictions = {
+    "Hospital": [
+      "All receipts and bills (including itemized hospital and pharmacy invoices) must be original.",
+      "A copy of the discharge summary.",
+      "A copy of Birth certificate is required in case of maternity.",
+    ],
+    "OPD": ["All OPD-related receipts and invoices must be original."],
+    "Dental Treatment": [
+      "All Dental-related receipts and invoices must be original.",
+      "Dental X-rays must be submitted.",
+    ],
+  };
+
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -57,6 +74,7 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
     final storage = StorageService();
     final userName = await storage.getName() ?? '';
     final familyNames = await storage.getFamilyNames();
+    log("message: $familyNames");
 
     setState(() {
       _patientNames = [userName, ...familyNames];
@@ -320,7 +338,7 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
                         },
                       ),
                       SizedBox(height: 1.h),
-                      _buildRestrictions(),
+                      _buildRestrictions(_benefitTypes[index]),
                       SizedBox(height: 1.h),
                     ],
                   ),
@@ -330,44 +348,129 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(4.h),
-        child: CustomButton(
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              // Create multiple claims
-              final claims = List.generate(
-                _billNoControllers.length,
-                (index) => AddClaimModel(
-                  items: [
-                    ClaimItem(
-                      billNo: _billNoControllers[index].text.trim(),
-                      billDate: _billDateControllers[index].text.trim(),
-                      employeeNo: _patients[index]!,
-                      serviceCode: _benefitTypes[index].toString(),
-                      billAmount: _billAmountControllers[index].text.trim(),
-                      hospital: _hosLabClinDrControllers[index].text.trim(),
-                      admitDate: _admissionDateControllers[index].text.trim(),
-                      dischargeDate: _dischargeDateControllers[index].text
-                          .trim(),
-                      attachments: _uploadedFilesList[index]
-                          .map((f) => Attachment(File(f.path!)))
-                          .toList(),
-                    ),
-                  ],
-                ),
-              );
+      // bottomNavigationBar: Padding(
+      //   padding: EdgeInsets.all(4.h),
+      //   child: CustomButton(
+      //     onPressed: () {
+      //       if (_formKey.currentState!.validate()) {
+      //         // Create multiple claims
+      //         final claims = List.generate(
+      //           _billNoControllers.length,
+      //           (index) => AddClaimModel(
+      //             items: [
+      //               ClaimItem(
+      //                 billNo: _billNoControllers[index].text.trim(),
+      //                 billDate: _billDateControllers[index].text.trim(),
+      //                 employeeNo: _patients[index]!,
+      //                 serviceCode: _benefitTypes[index].toString(),
+      //                 billAmount: _billAmountControllers[index].text.trim(),
+      //                 hospital: _hosLabClinDrControllers[index].text.trim(),
+      //                 admitDate: _admissionDateControllers[index].text.trim(),
+      //                 dischargeDate: _dischargeDateControllers[index].text
+      //                     .trim(),
+      //                 attachments: _uploadedFilesList[index]
+      //                     .map((f) => Attachment(File(f.path!)))
+      //                     .toList(),
+      //               ),
+      //             ],
+      //           ),
+      //         );
 
-              // Submit all claims
-              for (var claim in claims) {
-                ref.read(addClaimProvider.notifier).addClaim(claim);
-              }
-            }
-          },
-          gradient: const LinearGradient(
-            colors: [AppColors.buttonColor1, AppColors.buttonColor2],
-          ),
-          text: 'Submit Claims', // Added missing text parameter
+      //         // Submit all claims
+      //         for (var claim in claims) {
+      //           ref.read(addClaimProvider.notifier).addClaim(claim);
+      //         }
+      //       }
+      //     },
+      //     gradient: const LinearGradient(
+      //       colors: [AppColors.buttonColor1, AppColors.buttonColor2],
+      //     ),
+      //     text: 'Submit Claims', // Added missing text parameter
+      //   ),
+      // ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 1.h, vertical: 2.h),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ---- Declaration + Checkbox ----
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2.h),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: Checkbox(
+                      value: _declarationAccepted,
+                      onChanged: (val) {
+                        setState(() => _declarationAccepted = val ?? false);
+                      },
+                      activeColor: AppColors.buttonColor1,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      "I hereby certify that the information provided is correct to the best of my knowledge and that the medical expense claims submitted are valid under the company’s rules.",
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // ---- Submit Button (disabled until checkbox) ----
+            CustomButton(
+              onPressed: () =>
+                  _declarationAccepted && _formKey.currentState!.validate()
+                  ? () {
+                      // ────── YOUR ORIGINAL SUBMIT LOGIC ──────
+                      final claims = List.generate(
+                        _billNoControllers.length,
+                        (index) => AddClaimModel(
+                          items: [
+                            ClaimItem(
+                              billNo: _billNoControllers[index].text.trim(),
+                              billDate: _billDateControllers[index].text.trim(),
+                              employeeNo: _patients[index]!,
+                              serviceCode: _benefitTypes[index].toString(),
+                              billAmount: _billAmountControllers[index].text
+                                  .trim(),
+                              hospital: _hosLabClinDrControllers[index].text
+                                  .trim(),
+                              admitDate: _admissionDateControllers[index].text
+                                  .trim(),
+                              dischargeDate: _dischargeDateControllers[index]
+                                  .text
+                                  .trim(),
+                              attachments: _uploadedFilesList[index]
+                                  .map((f) => Attachment(File(f.path!)))
+                                  .toList(),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      for (var claim in claims) {
+                        ref.read(addClaimProvider.notifier).addClaim(claim);
+                      }
+                      // ───────────────────────────────────────
+                    }
+                  : null, // ← disables the button
+              gradient: const LinearGradient(
+                colors: [AppColors.buttonColor1, AppColors.buttonColor2],
+              ),
+              width: 40.h,
+              text: 'Submit Claims',
+            ),
+          ],
         ),
       ),
     );
@@ -437,19 +540,25 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
     );
   }
 
-  Widget _buildRestrictions() {
-    return ListView.builder(
-      itemCount: claimRestrictions.length,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) {
-        return CustomText(
-          title: '${index + 1}. ${claimRestrictions[index]}',
-          fontSize: 16.sp,
-          color: AppColors.restrictionColor,
-        );
-      },
-    );
+  Widget _buildRestrictions(String? benefitType) {
+    final restrictions =
+        benefitType != null && _benefitTypeRestrictions.containsKey(benefitType)
+        ? _benefitTypeRestrictions[benefitType]!
+        : [];
+    return restrictions.isNotEmpty
+        ? ListView.builder(
+            itemCount: restrictions.length,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              return CustomText(
+                title: '${index + 1}. ${restrictions[index]}',
+                fontSize: 16.sp,
+                color: AppColors.restrictionColor,
+              );
+            },
+          )
+        : const SizedBox.shrink();
   }
 
   void _showSuccessDialog(String message) {

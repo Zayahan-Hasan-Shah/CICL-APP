@@ -52,5 +52,10 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>We use Face ID to provide secure and convenient login to your account.</string>
+	
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to take photos for attachments.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+<string>This app needs photo library access to select images for attachments.</string>
 </dict>
 </plist>

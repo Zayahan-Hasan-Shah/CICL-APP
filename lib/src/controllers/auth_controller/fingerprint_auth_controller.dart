@@ -5,10 +5,9 @@ import 'package:cicl_app/src/controllers/auth_controller/login_controller.dart';
 import 'package:cicl_app/src/states/auth_state/fingerprint_auth_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/material.dart'; // Added for BuildContext
-import 'package:go_router/go_router.dart'; // Added for context.go
+import 'package:flutter/material.dart'; 
+import 'package:go_router/go_router.dart';
 
 class FingerprintAuthController extends StateNotifier<FingerprintAuthState> {
   final LocalAuthentication _localAuthentication = LocalAuthentication();

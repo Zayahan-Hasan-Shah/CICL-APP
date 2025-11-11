@@ -12,6 +12,7 @@ class FamilyController extends StateNotifier<FamilyState> {
   FamilyController() : super(FamilyState());
 
   Future<void> fetchFamilyMembers() async {
+    final StorageService _storage = StorageService();
     try {
       log("*** API URL : ${ApiUrl.familyMembers} ***");
       state = state.copyWith(loading: true, error: null);
@@ -34,23 +35,18 @@ class FamilyController extends StateNotifier<FamilyState> {
         final List<dynamic> data = jsonBody['data'];
 
         final familyMembers = data.map((e) => FamilyModel.fromJson(e)).toList();
-
-        state = state.copyWith(
-          loading: false,
-          family: familyMembers,
+        final userName = await _storage.getName() ?? '';
+        await _storage.saveUserAndFamilyNames(
+          userName: userName,
+          familyNames: familyMembers,
         );
+        state = state.copyWith(loading: false, family: familyMembers);
       } else {
-        state = state.copyWith(
-            loading: false,
-            error:
-                "Please try again later");
+        state = state.copyWith(loading: false, error: "Please try again later");
       }
     } catch (e, st) {
       log("Family Controller → Error: $e\n$st");
-      state = state.copyWith(
-        loading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(loading: false, error: e.toString());
     }
   }
 }

@@ -4,19 +4,21 @@ import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/core/constants/app_launcher_manager.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
+import 'package:cicl_app/src/providers/auth_provider/login_provider.dart';
 import 'package:cicl_app/src/routing/routes_names.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sizer/sizer.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with TickerProviderStateMixin {
   AnimationController? _controller;
   Animation<double>? _animation;
@@ -45,9 +47,13 @@ class _SplashScreenState extends State<SplashScreen>
 
           if (isLoggedIn) {
             // Check remaining token validity
-            final remainingValidity = await storageService.getTokenRemainingValidity();
-            
+            final remainingValidity = await storageService
+                .getTokenRemainingValidity();
+
             if (remainingValidity != null) {
+              await ref
+                  .read(authControllerProvider.notifier)
+                  .initializeUserSession(ref);
               log('Token is valid. Remaining validity: $remainingValidity');
               context.go(RoutesNames.dashboardScreen, extra: 0);
             } else {
@@ -77,45 +83,41 @@ class _SplashScreenState extends State<SplashScreen>
       backgroundColor: AppColors.backgroundColor,
       body: SafeArea(
         child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-                color: AppColors.backgroundColor,
-                image: DecorationImage(
-                  image: AssetImage(AppAssets.backgroundImage),
-                  fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                    AppColors.backgroundColor.withValues(alpha: 0.2),
-                    BlendMode.srcATop,
-                  ),
-                )),
-            child: Center(
-              child: AnimatedBuilder(
-                animation: _animation!,
-                builder: (context, child) {
-                  return Opacity(
-                    opacity: _animation?.value ?? 1,
-                    child: Transform.scale(
-                      scale: _animation?.value,
-                      child: child,
-                    ),
-                  );
-                },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      AppAssets.logoImage,
-                      height: 20.h,
-                    ),
-                    Image.asset(
-                      AppAssets.textLogoImage,
-                      height: 6.h,
-                    ),
-                  ],
-                ),
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            color: AppColors.backgroundColor,
+            image: DecorationImage(
+              image: AssetImage(AppAssets.backgroundImage),
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                AppColors.backgroundColor.withValues(alpha: 0.2),
+                BlendMode.srcATop,
               ),
-            )),
+            ),
+          ),
+          child: Center(
+            child: AnimatedBuilder(
+              animation: _animation!,
+              builder: (context, child) {
+                return Opacity(
+                  opacity: _animation?.value ?? 1,
+                  child: Transform.scale(
+                    scale: _animation?.value,
+                    child: child,
+                  ),
+                );
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(AppAssets.logoImage, height: 20.h),
+                  Image.asset(AppAssets.textLogoImage, height: 6.h),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

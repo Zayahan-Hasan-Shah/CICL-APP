@@ -65,7 +65,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ProfileTabButton(
-                        title: "Office",
+                        title: "Client",
                         index: 0,
                         selectedTab: selectedTab,
                         onTap: _onTabSelected,
@@ -117,4 +117,3 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 }
-

@@ -113,7 +113,7 @@ class AuthController extends StateNotifier<AuthState> {
       // Detailed error handling
       log("AuthController → Login error: $e");
       log("AuthController → Stack trace: $stackTrace");
-      
+
       if (e is NetworkException) {
         state = AuthError(e.message);
       } else {
@@ -185,6 +185,7 @@ class AuthController extends StateNotifier<AuthState> {
         token: user.accessToken,
         username: user.name,
       ),
+      _storageService.saveAccessToken(user.accessToken),
       _storageService.saveCardNumber(user.cardNumber),
       _storageService.saveName(user.name),
     ]);
@@ -195,16 +196,20 @@ class AuthController extends StateNotifier<AuthState> {
     Future.microtask(() async {
       try {
         // Capture providers before potential widget unmounting
-        final familyProvider = ref.read(familyMemberControllerProvider.notifier);
+        final familyProvider = ref.read(
+          familyMemberControllerProvider.notifier,
+        );
         final claimProvider = ref.read(claimControllerProvider.notifier);
 
         // These calls won't block the login process
-        await familyProvider.fetchFamilyMembers();
-        await claimProvider.fetchClaims(page: 0, pageSize: 10);
+        unawaited(familyProvider.fetchFamilyMembers());
+        unawaited(claimProvider.fetchClaims(page: 0, pageSize: 10));
 
         // Save additional data after fetching
-        final familyState = ref.read(familyMemberControllerProvider);
-        final familyNames = familyState.family.map((e) => e.name).toList();
+        final familyState = await ref.read(familyMemberControllerProvider);
+        final familyNames = await familyState.family;
+
+        log("familyName: $familyNames");
 
         await _storageService.saveUserAndFamilyNames(
           userName: user.name,
@@ -216,4 +221,31 @@ class AuthController extends StateNotifier<AuthState> {
       }
     });
   }
+
+  Future<void> initializeUserSession(WidgetRef ref) async {
+  try {
+    final tokenValid = await _storageService.isTokenValid();
+    if (!tokenValid) return;
+
+    // Get user info from storage if available
+    final username = await _storageService.getName();
+    final cardNumber = await _storageService.getCardNumber();
+    final token = await _storageService.getAccessToken();
+
+    log('Re-initializing user session for $username');
+
+    // Trigger your dependent providers to fetch fresh data
+    final familyProvider = ref.read(familyMemberControllerProvider.notifier);
+    final claimProvider = ref.read(claimControllerProvider.notifier);
+
+    unawaited(familyProvider.fetchFamilyMembers());
+    unawaited(claimProvider.fetchClaims(page: 0, pageSize: 10));
+
+    log('User session re-initialized successfully');
+  } catch (e, st) {
+    log('Error reinitializing session: $e');
+    log(st.toString());
+  }
+}
+
 }
