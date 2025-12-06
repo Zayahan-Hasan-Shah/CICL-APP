@@ -129,9 +129,32 @@ class StorageService {
     required String username,
   }) async {
     final prefs = await SharedPreferences.getInstance();
+    // Try to use JWT's own exp claim for expiry; fallback to 60 days
+    DateTime expiryDate;
+    try {
+      final parts = token.split('.');
+      if (parts.length == 3) {
+        final payloadBase64 = base64Url.normalize(parts[1]);
+        final payloadString = utf8.decode(base64Url.decode(payloadBase64));
+        final payload = jsonDecode(payloadString);
 
-    // Calculate expiry date (60 days from now)
-    final expiryDate = DateTime.now().add(const Duration(days: 60));
+        if (payload is Map && payload['exp'] is int) {
+          // exp is in seconds since epoch
+          expiryDate =
+              DateTime.fromMillisecondsSinceEpoch(payload['exp'] * 1000);
+        } else {
+          // Fallback: 60 days from now
+          expiryDate = DateTime.now().add(const Duration(days: 60));
+        }
+      } else {
+        // Not a standard JWT, fallback to 60 days
+        expiryDate = DateTime.now().add(const Duration(days: 60));
+      }
+    } catch (e) {
+      // On any parsing error, fallback to 60 days
+      log('Error parsing JWT expiry: $e', error: e);
+      expiryDate = DateTime.now().add(const Duration(days: 60));
+    }
 
     await prefs.setString(_accesstoken, token);
     await prefs.setString(_userame, username);
