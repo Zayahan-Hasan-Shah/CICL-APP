@@ -61,30 +61,33 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   SizedBox(height: 3.h),
 
                   // Tabs
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ProfileTabButton(
-                        title: "Client",
-                        index: 0,
-                        selectedTab: selectedTab,
-                        onTap: _onTabSelected,
-                      ),
-                      SizedBox(width: 2.w),
-                      ProfileTabButton(
-                        title: "Employee",
-                        index: 1,
-                        selectedTab: selectedTab,
-                        onTap: _onTabSelected,
-                      ),
-                      SizedBox(width: 2.w),
-                      ProfileTabButton(
-                        title: "Family",
-                        index: 2,
-                        selectedTab: selectedTab,
-                        onTap: _onTabSelected,
-                      ),
-                    ],
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ProfileTabButton(
+                          title: "Policy Holder",
+                          index: 0,
+                          selectedTab: selectedTab,
+                          onTap: _onTabSelected,
+                        ),
+                        SizedBox(width: 2.w),
+                        ProfileTabButton(
+                          title: "Employee",
+                          index: 1,
+                          selectedTab: selectedTab,
+                          onTap: _onTabSelected,
+                        ),
+                        SizedBox(width: 2.w),
+                        ProfileTabButton(
+                          title: "Family",
+                          index: 2,
+                          selectedTab: selectedTab,
+                          onTap: _onTabSelected,
+                        ),
+                      ],
+                    ),
                   ),
 
                   SizedBox(height: 3.h),

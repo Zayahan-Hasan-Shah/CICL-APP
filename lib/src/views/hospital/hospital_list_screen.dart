@@ -128,6 +128,27 @@ class _HospitalListScreenState extends ConsumerState<HospitalListScreen> {
                           ),
                         ),
                         child: ListTile(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: true,
+                              builder: (dialogContext) {
+                                return const AlertDialog(
+                                  content: Text(
+                                    "Right's of Admission Reserved.",
+                                    textAlign: TextAlign.center,
+                                  ),
+                                );
+                              },
+                            );
+
+                            Future.delayed(const Duration(seconds: 2), () {
+                              if (!mounted) return;
+                              if (Navigator.of(context).canPop()) {
+                                Navigator.of(context).pop();
+                              }
+                            });
+                          },
                           title: CustomText(
                             title: hospital.hospitalName,
                             fontSize: 16.sp,

@@ -394,6 +394,26 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
                           setState(() {
                             _uploadedFilesList[index] = files;
                           });
+                          if (files.isNotEmpty) {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: true,
+                              builder: (dialogContext) {
+                                return const AlertDialog(
+                                  content: Text(
+                                    "Hard copies of the Bill's/Receipt's (in original) to be maintained by respective policy holder for submission to CICL (if required)",
+                                  ),
+                                );
+                              },
+                            );
+
+                            Future.delayed(const Duration(seconds: 3), () {
+                              if (!mounted) return;
+                              if (Navigator.of(context).canPop()) {
+                                Navigator.of(context).pop();
+                              }
+                            });
+                          }
                         },
                       ),
                       SizedBox(height: 1.h),
