@@ -12,8 +12,9 @@ class LogoutService {
 
   Future<void> logout(BuildContext context) async {
     try {
-      // Clear all stored data
-      await _storageService.clearAllData();
+      // Clear all stored data, including access token and expiry,
+      // while preserving fingerprint credentials
+      await _storageService.fullLogout();
 
       // Additional cleanup steps
       await _performAdditionalCleanup();

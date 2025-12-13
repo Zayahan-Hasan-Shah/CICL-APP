@@ -58,37 +58,41 @@ class _CustomDropdownState extends State<CustomDropdown> {
           offset: Offset(0, size.height + 5),
           child: Material(
             color: Colors.transparent,
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.inputBackgroundColor,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: ListView(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                children: widget.items.map((item) {
-                  return InkWell(
-                    onTap: () {
-                      widget.onChanged(item);
-                      _closeDropdown();
-                    },
-                    child: Container(
-                      color: AppColors.whiteColor,
-                      padding: const EdgeInsets.all(14.0),
-                      child: Text(
-                        item,
-                        style: TextStyle(fontSize: 16, color: Colors.black87),
-                      ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 250),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.inputBackgroundColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
                     ),
-                  );
-                }).toList(),
+                  ],
+                ),
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  children: widget.items.map((item) {
+                    return InkWell(
+                      onTap: () {
+                        widget.onChanged(item);
+                        _closeDropdown();
+                      },
+                      child: Container(
+                        color: AppColors.whiteColor,
+                        padding: const EdgeInsets.all(14.0),
+                        child: Text(
+                          item,
+                          style:
+                              TextStyle(fontSize: 16, color: Colors.black87),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
               ),
             ),
           ),
