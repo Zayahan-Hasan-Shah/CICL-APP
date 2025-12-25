@@ -27,11 +27,6 @@ class ClaimSearchBar extends StatelessWidget {
         controller: controller,
         borderColor: AppColors.brightYellowColor,
         hintText: 'Search...',
-        // suffixIcon: IconButton(
-        //   icon: const Icon(Icons.calendar_month_outlined,
-        //       color: AppColors.purpleColor),
-        //   onPressed: () => showCalendarFilter(context, onDateRangeSelected),
-        // ),
       ),
     );
   }

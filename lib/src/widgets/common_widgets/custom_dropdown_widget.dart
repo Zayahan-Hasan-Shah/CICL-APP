@@ -7,11 +7,11 @@ class CustomDropdown extends StatefulWidget {
   final ValueChanged<String> onChanged;
 
   const CustomDropdown({
-    Key? key,
+    super.key,
     required this.items,
     required this.onChanged,
     this.selectedItem,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomDropdown> createState() => _CustomDropdownState();
@@ -66,7 +66,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withAlpha(26),
                       blurRadius: 6,
                       offset: Offset(0, 3),
                     ),
@@ -115,7 +115,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withAlpha(13),
                 blurRadius: 4,
                 offset: Offset(0, 2),
               ),

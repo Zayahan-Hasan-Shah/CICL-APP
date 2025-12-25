@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
@@ -72,7 +70,6 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
         onPressed: () {
           setState(() {
             _obscurePassword = !_obscurePassword;
-            log("LoginScreen → Password visibility: $_obscurePassword");
           });
         },
       ),
@@ -84,15 +81,13 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
       final username = _emailController.text.trim();
       final password = _passwordController.text.trim();
 
-      log("LoginScreen → Attempting login with $username");
       try {
         final response = await ref
             .read(authControllerProvider.notifier)
             .login(username, password, ref);
-        log('Login Screen -> Response');
-        log('Response Body : $response');
 
         if (response != null) {
+          if (!mounted) return;
           // Show success SnackBar
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -134,38 +129,41 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
                   .read(fingerprintAuthProvider.notifier)
                   .setupFingerprintLogin(username, password, ref);
 
+              if (!mounted) return;
               // Verify fingerprint login is enabled
               final isEnabled = await storageService
                   .isFingerprintLoginEnabled();
-              log('Fingerprint Login Enabled After Setup: $isEnabled');
             }
           }
 
           // Call onLoginSuccess if provided, otherwise navigate to dashboard
           if (widget.onLoginSuccess != null) {
             widget.onLoginSuccess!();
+            if (!mounted) return;
             context.go('/dashboardscreen', extra: 0);
           } else {
+            if (!mounted) return;
             context.go('/dashboardscreen', extra: 0);
           }
         } else {
           // Show error SnackBar for login failure
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
                 ref.read(authControllerProvider) is AuthError
-                  ? (ref.read(authControllerProvider) as AuthError).message
-                  : 'Login failed. Please try again.',
+                    ? (ref.read(authControllerProvider) as AuthError).message
+                    : 'Login failed. Please try again.',
                 style: TextStyle(color: Colors.white),
               ),
               backgroundColor: Colors.red,
               duration: Duration(seconds: 3),
             ),
           );
-          log("LoginScreen → Login failed, response is null");
         }
-      } catch (e, st) {
+      } catch (e) {
         // Show error SnackBar for any unexpected exceptions
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -176,11 +174,8 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
             duration: Duration(seconds: 3),
           ),
         );
-        log("LoginScreen → Exception during login: $e\n$st");
       }
-    } else {
-      log("LoginScreen → Form validation failed");
-    }
+    } else {}
   }
 
   @override
@@ -260,24 +255,24 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
             child: authState is AuthLoading
                 ? const Center(child: LoadingIndicator())
                 : authState is AuthError
-                    ? CustomButton(
-                        text: 'Sign In',
-                        fontSize: 16.sp,
-                        onPressed: _login,
-                        gradient: const LinearGradient(
-                          colors: [AppColors.buttonColor1, AppColors.buttonColor2],
-                        ),
-                        borderRadius: 12,
-                      )
-                    : CustomButton(
-                        text: 'Sign In',
-                        fontSize: 16.sp,
-                        onPressed: _login,
-                        gradient: const LinearGradient(
-                          colors: [AppColors.buttonColor1, AppColors.buttonColor2],
-                        ),
-                        borderRadius: 12,
-                      ),
+                ? CustomButton(
+                    text: 'Sign In',
+                    fontSize: 16.sp,
+                    onPressed: _login,
+                    gradient: const LinearGradient(
+                      colors: [AppColors.buttonColor1, AppColors.buttonColor2],
+                    ),
+                    borderRadius: 12,
+                  )
+                : CustomButton(
+                    text: 'Sign In',
+                    fontSize: 16.sp,
+                    onPressed: _login,
+                    gradient: const LinearGradient(
+                      colors: [AppColors.buttonColor1, AppColors.buttonColor2],
+                    ),
+                    borderRadius: 12,
+                  ),
           ),
         ],
       ),

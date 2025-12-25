@@ -47,8 +47,8 @@ class AppValidation {
     return null;
   }
 
-  static String? fileValidator(files) {
-    if (files == null || files.isEmpty) {
+  static String? fileValidator(List<dynamic> files) {
+    if (files.isEmpty) {
       return "Please upload at least one file";
     }
     if (files.length > 3) {

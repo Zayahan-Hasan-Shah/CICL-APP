@@ -1,7 +1,6 @@
 import 'package:cicl_app/src/models/family_model/family_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'dart:developer';
 
 class StorageService {
   static const _userame = 'user_name';
@@ -20,10 +19,7 @@ class StorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_userame, name);
-      log('Saved user name: $name');
-    } catch (e) {
-      log('Error saving user name: $e', error: e);
-    }
+    } catch (_) {}
   }
 
   Future<String?> getName() async {
@@ -31,13 +27,10 @@ class StorageService {
       final prefs = await SharedPreferences.getInstance();
       final name = prefs.getString(_userame);
 
-      if (name == null || name.isEmpty) {
-        log('No user name found in storage');
-      }
+      if (name == null || name.isEmpty) {}
 
       return name;
     } catch (e) {
-      log('Error retrieving user name: $e', error: e);
       return null;
     }
   }
@@ -56,6 +49,7 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_claimSeqNos, claimSeqNos);
   }
+
   Future<List<String>> getClaimSeqNos() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getStringList(_claimSeqNos) ?? [];
@@ -87,38 +81,27 @@ class StorageService {
   Future<void> saveCardNumber(String? cardNumber) async {
     try {
       if (cardNumber == null || cardNumber.isEmpty) {
-        log('Attempted to save empty card number');
         return;
       }
 
-      log('Attempting to save card number: $cardNumber');
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_cardNumber, cardNumber);
-      log('Saved card number: $cardNumber');
+      prefs.setString(_cardNumber, cardNumber);
 
       // Verify the saved card number
-      final savedCardNumber = await prefs.getString(_cardNumber);
-      log('Verification - Retrieved card number: $savedCardNumber');
-      if (savedCardNumber != cardNumber) {
-        log('WARNING: Saved card number does not match input card number');
-      }
-    } catch (e) {
-      log('Error saving card number: $e', error: e);
-    }
+      final savedCardNumber = prefs.getString(_cardNumber);
+      if (savedCardNumber != cardNumber) {}
+    } catch (_) {}
   }
 
   Future<String?> getCardNumber() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final cardNumber = await prefs.getString(_cardNumber);
+      final cardNumber = prefs.getString(_cardNumber);
 
-      if (cardNumber == null || cardNumber.isEmpty) {
-        log('No card number found in storage');
-      }
+      if (cardNumber == null || cardNumber.isEmpty) {}
 
       return cardNumber;
     } catch (e) {
-      log('Error retrieving card number: $e', error: e);
       return null;
     }
   }
@@ -140,8 +123,9 @@ class StorageService {
 
         if (payload is Map && payload['exp'] is int) {
           // exp is in seconds since epoch
-          expiryDate =
-              DateTime.fromMillisecondsSinceEpoch(payload['exp'] * 1000);
+          expiryDate = DateTime.fromMillisecondsSinceEpoch(
+            payload['exp'] * 1000,
+          );
         } else {
           // Fallback: 60 days from now
           expiryDate = DateTime.now().add(const Duration(days: 60));
@@ -152,7 +136,6 @@ class StorageService {
       }
     } catch (e) {
       // On any parsing error, fallback to 60 days
-      log('Error parsing JWT expiry: $e', error: e);
       expiryDate = DateTime.now().add(const Duration(days: 60));
     }
 
@@ -216,7 +199,6 @@ class StorageService {
 
       // Ensure both email and password are valid
       if (email.isEmpty || password.isEmpty) {
-        log('Cannot enable fingerprint login with empty credentials');
         return;
       }
 
@@ -228,27 +210,7 @@ class StorageService {
       await prefs.setString(_fingerprintEmail, encodedEmail);
       await prefs.setString(_fingerprintPassword, encodedPassword);
       await prefs.setBool(_fingerprintEnabled, true);
-
-      // Verify the values were set
-      final storedEmail = prefs.getString(_fingerprintEmail);
-      final storedPassword = prefs.getString(_fingerprintPassword);
-      final storedEnabled = prefs.getBool(_fingerprintEnabled);
-
-      log('Fingerprint login enable attempt:');
-      log('Email stored: ${storedEmail != null}');
-      log('Password stored: ${storedPassword != null}');
-      log('Enabled flag: $storedEnabled');
-
-      if (storedEmail == null ||
-          storedPassword == null ||
-          storedEnabled != true) {
-        log('Failed to completely store fingerprint login credentials');
-        throw Exception('Credential storage failed');
-      }
-
-      log('Fingerprint login enabled for email: $email');
     } catch (e) {
-      log('Error enabling fingerprint login: $e', error: e);
       rethrow;
     }
   }
@@ -260,10 +222,7 @@ class StorageService {
       // await prefs.remove(_fingerprintEmail);
       // await prefs.remove(_fingerprintPassword);
       // await prefs.remove(_fingerprintEnabled);
-
-      log('Fingerprint login disabled');
     } catch (e) {
-      log('Error disabling fingerprint login: $e', error: e);
       rethrow;
     }
   }
@@ -279,23 +238,8 @@ class StorageService {
 
       final isEnabled = isEnabledFlag && hasEmail && hasPassword;
 
-      log('Comprehensive fingerprint login status check:');
-      log('Enabled Flag: $isEnabledFlag');
-      log('Email Stored: $hasEmail');
-      log('Password Stored: $hasPassword');
-      log('Overall Enabled: $isEnabled');
-
-      // Additional detailed logging
-      if (!isEnabled) {
-        log('Fingerprint Login Disabled Reason:');
-        if (!isEnabledFlag) log('- Enabled flag is false');
-        if (!hasEmail) log('- No email stored');
-        if (!hasPassword) log('- No password stored');
-      }
-
       return isEnabled;
     } catch (e) {
-      log('Error checking fingerprint login status: $e', error: e);
       return false;
     }
   }
@@ -308,7 +252,6 @@ class StorageService {
       final encodedPassword = prefs.getString(_fingerprintPassword);
 
       if (encodedEmail == null || encodedPassword == null) {
-        log('No saved fingerprint credentials found');
         return null;
       }
 
@@ -320,20 +263,16 @@ class StorageService {
         email = utf8.decode(base64Decode(encodedEmail));
         password = utf8.decode(base64Decode(encodedPassword));
       } catch (e) {
-        log('Error decoding credentials: $e');
         return null;
       }
 
       // Validate decoded credentials
       if (email.isEmpty || password.isEmpty) {
-        log('Decoded credentials are empty');
         return null;
       }
 
-      log('Fingerprint credentials retrieved successfully');
       return {'email': email, 'password': password};
     } catch (e) {
-      log('Error retrieving fingerprint credentials: $e', error: e);
       return null;
     }
   }
@@ -348,20 +287,13 @@ class StorageService {
 
       // Preserve fingerprint login credentials
       final fingerprintEmail = prefs.getString(_fingerprintEmail);
-      final fingerprintPassword = prefs.getString(_fingerprintPassword);
       final fingerprintEnabled = prefs.getBool(_fingerprintEnabled);
 
       // Remove user-specific tokens and names
       // await prefs.remove(_userame);
       // await prefs.remove(_accesstoken);
       // await prefs.remove(_tokenExpiry);
-
-      log('Partial local storage data cleared');
-      log(
-        'Preserved Fingerprint Credentials: ${fingerprintEmail != null}, Enabled: $fingerprintEnabled, Access Token: ${prefs.getString(_accesstoken)}',
-      );
     } catch (e) {
-      log('Error clearing local storage: $e', error: e);
       rethrow;
     }
   }
@@ -386,13 +318,8 @@ class StorageService {
         await prefs.setString(_fingerprintEmail, fingerprintEmail);
         await prefs.setString(_fingerprintPassword, fingerprintPassword);
         await prefs.setBool(_fingerprintEnabled, true);
-
-        log('Restored Fingerprint Login Credentials');
       }
-
-      log('Complete local storage data cleared');
     } catch (e) {
-      log('Error during full logout: $e', error: e);
       rethrow;
     }
   }

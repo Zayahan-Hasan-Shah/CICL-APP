@@ -23,9 +23,6 @@ class _FamilyListScreenState extends ConsumerState<FamilyListScreen> {
   @override
   void initState() {
     super.initState();
-    // Future.microtask(() {
-    //   ref.read(familyMemberControllerProvider.notifier).fetchFamilyMembers();
-    // });
     _searchController.addListener(() {
       setState(() {}); // rebuild UI when search text changes
     });
@@ -66,7 +63,7 @@ class _FamilyListScreenState extends ConsumerState<FamilyListScreen> {
         ],
       ),
       backgroundColor: Colors.white,
-      body: Container(
+      body: SizedBox(
         child: SafeArea(
           child: Column(
             children: [
@@ -110,10 +107,6 @@ class _FamilyListScreenState extends ConsumerState<FamilyListScreen> {
                                       );
                                     },
                                     name: famMeb.name,
-                                    // relation: famMeb.relation,
-                                    // gender: famMeb.gender == 'F'
-                                    //     ? 'Female'
-                                    //     : 'Male',
                                   );
                                 },
                               ),

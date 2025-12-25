@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/core/validations/app_validation.dart';
@@ -153,12 +151,10 @@ class _ForgetPasswordScreenState extends ConsumerState<ForgetPasswordScreen> {
   Future<void> _forgotPassword() async {
     if (_formKey.currentState?.validate() ?? false) {
       final email = _emailController.text.trim();
-      log("ForgotPassword → Attempting login with $email");
       await ref
           .read(forgotPasswordControllerProvider.notifier)
           .sendResetLink(email);
     } else {
-      log("Forgot Password → Form validation failed");
     }
   }
 

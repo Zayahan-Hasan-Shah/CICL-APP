@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
@@ -12,12 +11,10 @@ class FamilyController extends StateNotifier<FamilyState> {
   FamilyController() : super(FamilyState());
 
   Future<void> fetchFamilyMembers() async {
-    final StorageService _storage = StorageService();
+    final StorageService storage = StorageService();
     try {
-      log("*** API URL : ${ApiUrl.familyMembers} ***");
       state = state.copyWith(loading: true, error: null);
       final token = await StorageService().getAccessToken();
-      log("FamilyController → Using access token: $token");
       final url = Uri.parse(ApiUrl.familyMembers);
       final response = await http.post(
         url,
@@ -27,16 +24,13 @@ class FamilyController extends StateNotifier<FamilyState> {
         },
       );
 
-      log("Family Controller → Response status: ${response.statusCode}");
-      log("Family Controller → Body: ${response.body}");
-
       if (response.statusCode == 200) {
         final jsonBody = json.decode(response.body);
         final List<dynamic> data = jsonBody['data'];
 
         final familyMembers = data.map((e) => FamilyModel.fromJson(e)).toList();
-        final userName = await _storage.getName() ?? '';
-        await _storage.saveUserAndFamilyNames(
+        final userName = await storage.getName() ?? '';
+        await storage.saveUserAndFamilyNames(
           userName: userName,
           familyNames: familyMembers,
         );
@@ -44,8 +38,7 @@ class FamilyController extends StateNotifier<FamilyState> {
       } else {
         state = state.copyWith(loading: false, error: "Please try again later");
       }
-    } catch (e, st) {
-      log("Family Controller → Error: $e\n$st");
+    } catch (e) {
       state = state.copyWith(loading: false, error: e.toString());
     }
   }

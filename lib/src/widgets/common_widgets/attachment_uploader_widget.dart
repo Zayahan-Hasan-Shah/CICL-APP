@@ -3,21 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
-/// ---------------------------------------------------------------------------
-///  PUBLIC WIDGET – use exactly like before
-/// ---------------------------------------------------------------------------
 class AttachmentUploader extends FormField<List<PlatformFile>> {
   AttachmentUploader({
-    Key? key,
-    FormFieldValidator<List<PlatformFile>>? validator,
+    super.key,
+    super.validator,
     required Function(List<PlatformFile>) onFilesChanged,
     List<PlatformFile>? initialValue,
-    AutovalidateMode autovalidateMode = AutovalidateMode.disabled,
+    AutovalidateMode super.autovalidateMode = AutovalidateMode.disabled,
   }) : super(
-          key: key,
           initialValue: initialValue ?? [],
-          validator: validator,
-          autovalidateMode: autovalidateMode,
           builder: (FormFieldState<List<PlatformFile>> state) {
             return _AttachmentUploaderContent(
               files: state.value ?? [],
@@ -31,20 +25,16 @@ class AttachmentUploader extends FormField<List<PlatformFile>> {
         );
 }
 
-/// ---------------------------------------------------------------------------
-///  PRIVATE IMPLEMENTATION
-/// ---------------------------------------------------------------------------
 class _AttachmentUploaderContent extends StatefulWidget {
   final List<PlatformFile> files;
   final Function(List<PlatformFile>) onChanged;
   final String? errorText;
 
   const _AttachmentUploaderContent({
-    Key? key,
     required this.files,
     required this.onChanged,
     this.errorText,
-  }) : super(key: key);
+  });
 
   @override
   State<_AttachmentUploaderContent> createState() =>
@@ -55,9 +45,6 @@ class _AttachmentUploaderContentState
     extends State<_AttachmentUploaderContent> {
   final ImagePicker _picker = ImagePicker();
 
-  // --------------------------------------------------------------
-  // 1. Pick from Gallery / Files
-  // --------------------------------------------------------------
   Future<void> _pickFiles() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -71,9 +58,6 @@ class _AttachmentUploaderContentState
     }
   }
 
-  // --------------------------------------------------------------
-  // 2. Take a photo with the camera
-  // --------------------------------------------------------------
   Future<void> _takePhoto() async {
     final XFile? photo = await _picker.pickImage(
       source: ImageSource.camera,
@@ -94,17 +78,11 @@ class _AttachmentUploaderContentState
     }
   }
 
-  // --------------------------------------------------------------
-  // 3. Remove a file
-  // --------------------------------------------------------------
   void _removeFile(int index) {
     final newFiles = List<PlatformFile>.from(widget.files)..removeAt(index);
     widget.onChanged(newFiles);
   }
 
-  // --------------------------------------------------------------
-  // UI
-  // --------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     final files = widget.files;
@@ -155,7 +133,7 @@ class _AttachmentUploaderContentState
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withAlpha(13),
                       blurRadius: 3,
                       offset: const Offset(0, 1),
                     ),
@@ -200,9 +178,6 @@ class _AttachmentUploaderContentState
     );
   }
 
-  // --------------------------------------------------------------
-  // Helper: reusable button style
-  // --------------------------------------------------------------
   Widget _actionButton({
     required String label,
     required IconData icon,
@@ -218,7 +193,7 @@ class _AttachmentUploaderContentState
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black..withAlpha(13),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),

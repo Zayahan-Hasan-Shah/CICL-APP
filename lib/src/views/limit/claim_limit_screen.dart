@@ -2,7 +2,7 @@ import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/models/claim_model.dart/claim_limit_model.dart';
 import 'package:cicl_app/src/providers/claim_provider/claim_limit_provider.dart';
 import 'package:cicl_app/src/widgets/common_widgets/custom_text.dart';
-import 'package:cicl_app/src/widgets/limit_widget/hospitalization_limit_Section.dart';
+import 'package:cicl_app/src/widgets/limit_widget/hospitalization_limit_section.dart';
 import 'package:cicl_app/src/widgets/limit_widget/limit_section.dart';
 import 'package:cicl_app/src/widgets/limit_widget/limit_tab_button.dart';
 import 'package:cicl_app/src/widgets/limit_widget/opd_limit_section.dart';

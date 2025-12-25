@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cicl_app/src/providers/auth_provider/fingerprint_auth_provider.dart';
 import 'package:cicl_app/src/states/auth_state/fingerprint_auth_state.dart';
 import 'package:cicl_app/src/widgets/login_widget/login_form_widget.dart';
@@ -53,7 +51,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         LoginFormWidget(
                           onLoginSuccess: () {
                             // Custom login success handling if needed
-                            log('Login successful');
                           },
                         ),
                         const SizedBox(height: 8),

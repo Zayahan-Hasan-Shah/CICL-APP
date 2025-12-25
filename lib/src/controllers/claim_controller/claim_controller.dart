@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/core/validations/app_validation.dart';
@@ -18,16 +17,10 @@ class ClaimController extends StateNotifier<ClaimState> {
     String? endDate = "2025-08-30",
   }) async {
     try {
-      log("*** API URL : ${ApiUrl.getClaimUrl} ***");
       state = state.copyWith(loading: true, error: null);
 
       // ✅ get saved access token
       final token = await StorageService().getAccessToken();
-      log("ClaimController → Using access token: $token");
-      log("ClaimController → Start Date : $startDate");
-      log("ClaimController → End Date : $endDate");
-      log("ClaimController → Page : $page");
-      log("ClaimController → PageSize : $pageSize");
 
       final url = Uri.parse(ApiUrl.getClaimUrl);
       final bodySent = {
@@ -37,7 +30,6 @@ class ClaimController extends StateNotifier<ClaimState> {
         "pageSize": pageSize,
       };
 
-      log("Sending Body : $bodySent");
 
       final response = await http.post(
         url,
@@ -48,8 +40,6 @@ class ClaimController extends StateNotifier<ClaimState> {
         },
       );
 
-      log("ClaimController → Response status: ${response.statusCode}");
-      log("ClaimController → Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final jsonBody = json.decode(response.body);
@@ -72,8 +62,7 @@ class ClaimController extends StateNotifier<ClaimState> {
           error: "Failed to fetch claims.",
         );
       }
-    } catch (e, st) {
-      log("ClaimController → Error: $e\n$st");
+    } catch (e) {
       state = state.copyWith(
         loading: false,
         error: e.toString(),

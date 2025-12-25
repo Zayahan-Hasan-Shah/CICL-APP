@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/providers/bottom_navigation_provider/bottom_navigation_provider.dart';
@@ -37,7 +35,6 @@ List<Map<String, dynamic>> dummyInfoCardData = [
     "title": "BMI",
     "iconBgColor": AppColors.buttonColor1,
     "onTap": (WidgetRef ref, BuildContext context) async {
-      log("BMI -> taps");
       context.push('/bmiscreen');
     },
   },
@@ -47,7 +44,6 @@ List<Map<String, dynamic>> dummyInfoCardData = [
     "title": "Panel Hospitals",
     "iconBgColor": AppColors.buttonColor1,
     "onTap": (WidgetRef ref, BuildContext context) {
-      log("Panel Hospitals -> taps");
       context.push('/hospitallistscreen');
     },
   },
@@ -57,7 +53,6 @@ List<Map<String, dynamic>> dummyInfoCardData = [
     "title": "Discount Centres",
     "iconBgColor": AppColors.buttonColor1,
     "onTap": (WidgetRef ref, BuildContext context) {
-      log("Other Benefits -> taps");
       context.push('/laboratorylistscreen');
     },
   },
@@ -67,7 +62,6 @@ List<Map<String, dynamic>> dummyInfoCardData = [
     "title": "Claim Limit",
     "iconBgColor": AppColors.buttonColor1,
     "onTap": (WidgetRef ref, BuildContext context) {
-      log("Extra -> taps");
       ref.read(claimLimitProvider.notifier).fetchClaimLimits();
       context.push('/claimlimitscreen');
     },

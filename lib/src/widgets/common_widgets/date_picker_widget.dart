@@ -12,12 +12,12 @@ class DatePickerTextField extends StatelessWidget {
   final bool isValidate;
 
   const DatePickerTextField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.hintText,
     this.validator,
     this.isValidate = false,
-  }) : super(key: key);
+  });
 
   Future<void> _pickDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/models/claim_model.dart/claim_limit_model.dart';
@@ -13,14 +12,11 @@ class ClaimLimitController extends StateNotifier<ClaimLimitState> {
   Future<void> fetchClaimLimits() async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      log("*** API URL : ${ApiUrl.userLimitUrl} ***");
       final token = await StorageService().getAccessToken();
       // final cardNo = await StorageService().getCardNumber();
       final cardNo = await StorageService().getCardNumber();
-      log("CRNO : $cardNo");
       // Validate card number
       if (cardNo == null || cardNo.isEmpty) {
-        log("ClaimLimitController → No card number found");
         state = state.copyWith(
           isLoading: false, 
           error: "Employee Card Number is required. Please update your profile."
@@ -28,8 +24,6 @@ class ClaimLimitController extends StateNotifier<ClaimLimitState> {
         return;
       }
 
-      log("ClaimLimitController → Using token: $token");
-      log("ClaimLimitController → Using card: $cardNo");
 
       final url = Uri.parse(ApiUrl.userLimitUrl);
       final bodySent = jsonEncode({
@@ -46,8 +40,6 @@ class ClaimLimitController extends StateNotifier<ClaimLimitState> {
         body: bodySent,
       );
 
-      log("Response status: ${response.statusCode}");
-      log("Response body: ${response.body}");
 
       final data = json.decode(response.body);
 
@@ -59,8 +51,6 @@ class ClaimLimitController extends StateNotifier<ClaimLimitState> {
             final model = UserClaimLimit.fromJson(data);
             state = state.copyWith(isLoading: false, data: model);
           } catch (e) {
-            log("ClaimLimitController → Error parsing claim limits: $e");
-            log("Problematic JSON data: $data");
             state = state.copyWith(
               isLoading: false, 
               error: "Failed to parse claim limits: ${e.toString()}"
@@ -75,9 +65,6 @@ class ClaimLimitController extends StateNotifier<ClaimLimitState> {
           );
         } else {
           // Unexpected response format
-          log("ClaimLimitController → Unexpected response format");
-          log("Received data type: ${data.runtimeType}");
-          log("Received data: $data");
           state = state.copyWith(
             isLoading: false, 
             error: "Unexpected response format"
@@ -85,16 +72,12 @@ class ClaimLimitController extends StateNotifier<ClaimLimitState> {
         }
       } else {
         // HTTP error
-        log("ClaimLimitController → HTTP error");
-        log("Response status code: ${response.statusCode}");
-        log("Response body: ${response.body}");
         state = state.copyWith(
           isLoading: false, 
           error: data['message'] ?? "Failed to load claim limits"
         );
       }
     } catch (e) {
-      log("ClaimLimitController → Error: $e");
       state = state.copyWith(
         isLoading: false, 
         error: "An unexpected error occurred: ${e.toString()}"

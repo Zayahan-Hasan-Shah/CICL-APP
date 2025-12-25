@@ -72,33 +72,6 @@ class CustomTextField extends StatelessWidget {
           borderSide: BorderSide.none,
         ),
       ),
-
-      // decoration: InputDecoration(
-      //   fillColor: AppColors.inputBackgroundColor,
-      //   floatingLabelBehavior: FloatingLabelBehavior.never,
-      //   hintText: hintText ?? '',
-      //   prefixIcon: prefixIcon,
-      //   suffixIcon: suffixIcon,
-      //   border: OutlineInputBorder(
-      //       // borderRadius: BorderRadius.circular(borderRadius ?? 8),
-      //       // borderSide: BorderSide(
-      //       //   color: borderColor ?? AppColors.inputBackgroundColor,
-      //       // ),
-      //       borderSide: BorderSide.none),
-      //   enabledBorder: OutlineInputBorder(
-      //     // borderRadius: BorderRadius.circular(borderRadius ?? 8),
-      //     borderSide: BorderSide(
-      //       color: borderColor ?? AppColors.inputBackgroundColor,
-      //     ),
-      //   ),
-      //   focusedBorder: OutlineInputBorder(
-      //     // borderRadius: BorderRadius.circular(borderRadius ?? 8),
-      //     borderSide: BorderSide(
-      //       color: borderColor ?? AppColors.inputBackgroundColor,
-      //       width: 0,
-      //     ),
-      //   ),
-      // ),
     );
   }
 }

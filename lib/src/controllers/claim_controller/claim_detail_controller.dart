@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/models/claim_model.dart/claim_detail_model.dart'
@@ -15,8 +14,6 @@ class ClaimDetailController extends StateNotifier<ClaimDetailState> {
     state = ClaimDetailLoading();
 
     try {
-      log("CLMSEQNOS : $clmseqnos");
-      log("*** API URL : ${ApiUrl.getClaimDetailUrl} ***");
       final token = await StorageService().getAccessToken();
       final response = await http.post(
         Uri.parse(ApiUrl.getClaimDetailUrl),
@@ -28,8 +25,6 @@ class ClaimDetailController extends StateNotifier<ClaimDetailState> {
         body: jsonEncode({"clmseqnos": clmseqnos}),
       );
 
-      log("ClaimDetailController → Response status: ${response.statusCode}");
-      log("ClaimDetailController → Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
@@ -38,8 +33,7 @@ class ClaimDetailController extends StateNotifier<ClaimDetailState> {
       } else {
         state = ClaimDetailError("Failed: ${response.body}");
       }
-    } catch (e, st) {
-      log("ClaimController → Error: $e\n$st");
+    } catch (e) {
       state = ClaimDetailError(e.toString());
     }
   }

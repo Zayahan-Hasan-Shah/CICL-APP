@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:cicl_app/src/core/constants/app_assets.dart';
@@ -83,7 +82,6 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
       }
     });
 
-    final state = ref.watch(addFamilyProvider);
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       appBar: AppBar(
@@ -264,16 +262,10 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
           text: 'Add Family',
           fontSize: 15.sp,
           textColor: AppColors.whiteColor,
-          onPressed: () async {
-            log("message : $_cnicCtrl");
-            log("message : $_dobCtrl");
-            log("message : $_nameCtrl");
-            log("message : $genderSeleted");
-            log("message : $relationSeleted");
-            log("message : $uploadedFiles");
+          onPressed: () {
             if (_formKey.currentState?.validate() ?? false) {
               if (relationSeleted == null || genderSeleted == null) {
-                ScaffoldMessenger.of(context).showSnackBar( 
+                ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text("Please select relation and gender"),
                   ),
@@ -288,13 +280,13 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
                 return;
               }
 
-              final model = await AddFamilyModel(
+              final model = AddFamilyModel(
                 name: _nameCtrl.text.trim(),
                 dateOfBirth: _dobCtrl.text.trim(),
                 cnic: _cnicCtrl.text.trim(),
                 relation: relationSeleted!,
                 gender: genderSeleted!,
-                attachments: File(uploadedFiles.first.path!), // fix
+                attachments: File(uploadedFiles.first.path!),
               );
 
               ref.read(addFamilyProvider.notifier).addFamilyMember(model);

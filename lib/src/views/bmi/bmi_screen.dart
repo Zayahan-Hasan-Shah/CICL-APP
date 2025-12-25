@@ -142,7 +142,7 @@ class _BmiScreenState extends ConsumerState<BmiScreen> {
       borderRadius: BorderRadius.circular(18),
       boxShadow: [
         BoxShadow(
-          color: Colors.grey.withOpacity(0.15),
+          color: Colors.grey.withAlpha(38),
           blurRadius: 10,
           offset: const Offset(0, 4),
         ),

@@ -1,9 +1,7 @@
 import 'dart:io';
-import 'dart:developer';
 
 import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
-import 'package:cicl_app/src/core/constants/app_text.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/core/validations/app_validation.dart';
 import 'package:cicl_app/src/models/claim_model.dart/add_claim_model.dart';
@@ -32,16 +30,16 @@ class AddClaimScreen extends ConsumerStatefulWidget {
 
 class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
   // Multiple claim form controllers
-  List<TextEditingController> _billNoControllers = [];
-  List<TextEditingController> _billDateControllers = [];
-  List<TextEditingController> _billAmountControllers = [];
-  List<TextEditingController> _hosLabClinDrControllers = [];
-  List<TextEditingController> _admissionDateControllers = [];
-  List<TextEditingController> _dischargeDateControllers = [];
+  final List<TextEditingController> _billNoControllers = [];
+  final List<TextEditingController> _billDateControllers = [];
+  final List<TextEditingController> _billAmountControllers = [];
+  final List<TextEditingController> _hosLabClinDrControllers = [];
+  final List<TextEditingController> _admissionDateControllers = [];
+  final List<TextEditingController> _dischargeDateControllers = [];
 
-  List<String?> _patients = [];
-  List<String?> _benefitTypes = [];
-  List<List<PlatformFile>> _uploadedFilesList = [];
+  final List<String?> _patients = [];
+  final List<String?> _benefitTypes = [];
+  final List<List<PlatformFile>> _uploadedFilesList = [];
   List<String> _patientNames = []; // Add this line
 
   bool _declarationAccepted = false;
@@ -74,7 +72,6 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
     final storage = StorageService();
     final userName = await storage.getName() ?? '';
     final familyNames = await storage.getFamilyNames();
-    log("message: $familyNames");
 
     setState(() {
       _patientNames = [userName, ...familyNames];
@@ -182,8 +179,6 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
   }
 
   void _submitAllClaims() {
-    final addClaimState = ref.watch(addClaimProvider);
-    final isLoading = addClaimState.loading;
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -395,6 +390,7 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
                             _uploadedFilesList[index] = files;
                           });
                           if (files.isNotEmpty) {
+                            final navigator = Navigator.of(context);
                             showDialog(
                               context: context,
                               barrierDismissible: true,
@@ -409,8 +405,8 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
 
                             Future.delayed(const Duration(seconds: 3), () {
                               if (!mounted) return;
-                              if (Navigator.of(context).canPop()) {
-                                Navigator.of(context).pop();
+                              if (navigator.canPop()) {
+                                navigator.pop();
                               }
                             });
                           }
@@ -427,46 +423,6 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
           ),
         ),
       ),
-      // bottomNavigationBar: Padding(
-      //   padding: EdgeInsets.all(4.h),
-      //   child: CustomButton(
-      //     onPressed: () {
-      //       if (_formKey.currentState!.validate()) {
-      //         // Create multiple claims
-      //         final claims = List.generate(
-      //           _billNoControllers.length,
-      //           (index) => AddClaimModel(
-      //             items: [
-      //               ClaimItem(
-      //                 billNo: _billNoControllers[index].text.trim(),
-      //                 billDate: _billDateControllers[index].text.trim(),
-      //                 employeeNo: _patients[index]!,
-      //                 serviceCode: _benefitTypes[index].toString(),
-      //                 billAmount: _billAmountControllers[index].text.trim(),
-      //                 hospital: _hosLabClinDrControllers[index].text.trim(),
-      //                 admitDate: _admissionDateControllers[index].text.trim(),
-      //                 dischargeDate: _dischargeDateControllers[index].text
-      //                     .trim(),
-      //                 attachments: _uploadedFilesList[index]
-      //                     .map((f) => Attachment(File(f.path!)))
-      //                     .toList(),
-      //               ),
-      //             ],
-      //           ),
-      //         );
-
-      //         // Submit all claims
-      //         for (var claim in claims) {
-      //           ref.read(addClaimProvider.notifier).addClaim(claim);
-      //         }
-      //       }
-      //     },
-      //     gradient: const LinearGradient(
-      //       colors: [AppColors.buttonColor1, AppColors.buttonColor2],
-      //     ),
-      //     text: 'Submit Claims', // Added missing text parameter
-      //   ),
-      // ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.symmetric(horizontal: 1.h, vertical: 2.h),
         child: Column(
@@ -516,52 +472,6 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
               width: 40.h,
               text: isLoading ? 'Submitting...' : 'Submit Claims',
             ),
-
-            // ---- Submit Button (disabled until checkbox) ----
-            // CustomButton(
-            //   onPressed: _declarationAccepted ? _submitAllClaims : () {},
-            //   // onPressed: () =>
-            //   //     _declarationAccepted && _formKey.currentState!.validate()
-            //   //     ? () {
-            //   //         // ────── YOUR ORIGINAL SUBMIT LOGIC ──────
-            //   //         final claims = List.generate(
-            //   //           _billNoControllers.length,
-            //   //           (index) => AddClaimModel(
-            //   //             items: [
-            //   //               ClaimItem(
-            //   //                 billNo: _billNoControllers[index].text.trim(),
-            //   //                 billDate: _billDateControllers[index].text.trim(),
-            //   //                 employeeNo: _patients[index]!,
-            //   //                 serviceCode: _benefitTypes[index].toString(),
-            //   //                 billAmount: _billAmountControllers[index].text
-            //   //                     .trim(),
-            //   //                 hospital: _hosLabClinDrControllers[index].text
-            //   //                     .trim(),
-            //   //                 admitDate: _admissionDateControllers[index].text
-            //   //                     .trim(),
-            //   //                 dischargeDate: _dischargeDateControllers[index]
-            //   //                     .text
-            //   //                     .trim(),
-            //   //                 attachments: _uploadedFilesList[index]
-            //   //                     .map((f) => Attachment(File(f.path!)))
-            //   //                     .toList(),
-            //   //               ),
-            //   //             ],
-            //   //           ),
-            //   //         );
-
-            //   //         for (var claim in claims) {
-            //   //           ref.read(addClaimProvider.notifier).addClaim(claim);
-            //   //         }
-            //   //         // ───────────────────────────────────────
-            //   //       }
-            //   //     : null, // ← disables the button
-            //   gradient: const LinearGradient(
-            //     colors: [AppColors.buttonColor1, AppColors.buttonColor2],
-            //   ),
-            //   width: 40.h,
-            //   text: isLoading ? 'submting' : 'Submit Claims',
-            // ),
           ],
         ),
       ),
@@ -669,13 +579,6 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
             textColor: AppColors.whiteColor,
             text: "OK",
           ),
-          // TextButton(
-          //   onPressed: () {
-          //     Navigator.of(context).pop();
-          //     _resetForm(); // Reset form after successful submission
-          //   },
-          //   child: const Text('OK'),
-          // ),
         ],
       ),
     );

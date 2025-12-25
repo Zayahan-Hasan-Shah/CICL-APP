@@ -89,7 +89,7 @@ class OpdLimitSection extends StatelessWidget {
                 border: Border.all(color: AppColors.buttonColor1),
               ),
               child: DataTable(
-                headingRowColor: MaterialStateColor.resolveWith(
+                headingRowColor: WidgetStateColor.resolveWith(
                   (states) => Colors.blue.shade50,
                 ),
                 border: TableBorder(
@@ -98,11 +98,11 @@ class OpdLimitSection extends StatelessWidget {
                     topRight: Radius.circular(8),
                   ),
                   horizontalInside: BorderSide(
-                    color: AppColors.buttonColor1.withOpacity(0.5),
+                    color: AppColors.buttonColor1.withAlpha(128),
                     width: 1,
                   ),
                   verticalInside: BorderSide(
-                    color: AppColors.buttonColor1.withOpacity(0.5),
+                    color: AppColors.buttonColor1.withAlpha(128),
                     width: 1,
                   ),
                 ),
@@ -148,11 +148,11 @@ class OpdLimitSection extends StatelessWidget {
       cells: [
         _dataCell(claim.clmseqnos.toString()),
         _dataCell(claim.lossdate),
-        _dataCell(AppValidation().formatAmount(num.parse(claim.bill_amount))),
+        _dataCell(AppValidation().formatAmount(num.parse(claim.billAmount))),
         _dataCell(AppValidation().formatAmount(num.parse(claim.approved))),
         _dataCell(claim.deduction ?? 'N/A'),
-        _dataCell(claim.employee_no),
-        _dataCell(claim.cl_cicempno),
+        _dataCell(claim.employeeNo),
+        _dataCell(claim.clCicempno),
         _dataCell(claim.colcode.toString()),
         _dataCell(claim.reportdate),
         _dataCell(claim.glvoucherno),

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/models/claim_model.dart/add_claim_model.dart';
@@ -15,7 +14,6 @@ class AddClaimController extends StateNotifier<AddClaimState> {
       state = state.copyWith(loading: true, error: null, message: null);
 
       final token = await StorageService().getAccessToken();
-      log("AddClaimController → Using access token: $token");
 
       final uri = Uri.parse(ApiUrl.addClaimUrl);
 
@@ -32,11 +30,9 @@ class AddClaimController extends StateNotifier<AddClaimState> {
         final fields = item.toFormData(i);
 
         request.fields.addAll(fields);
-        log("AddClaimController → ClaimItem[$i] fields: $fields");
 
         // If you later need file uploads:
         for (int j = 0; j < item.attachments.length; j++) {
-          log("ClaimItems[$i][attachment][$j]");
           request.files.add(
             await http.MultipartFile.fromPath(
               "ClaimItems[$i][attachment][$j]",
@@ -50,8 +46,6 @@ class AddClaimController extends StateNotifier<AddClaimState> {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      log("AddClaimController → Status: ${response.statusCode}");
-      log("AddClaimController → Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final jsonBody = json.decode(response.body);
@@ -73,8 +67,7 @@ class AddClaimController extends StateNotifier<AddClaimState> {
           error: "Failed with status ${response.statusCode}",
         );
       }
-    } catch (e, st) {
-      log("AddClaimController → Error: $e\n$st");
+    } catch (e) {
       state = state.copyWith(loading: false, error: e.toString());
     }
   }

@@ -89,7 +89,7 @@ class ClaimDetailWidgetSection2 extends StatelessWidget {
                   ),
                   Flexible(
                     child: CustomText(
-                      title: '${details.values.elementAt(i)}',
+                      title: details.values.elementAt(i),
                       weight: FontWeight.w600,
                       alignText: TextAlign.right,
                     ),

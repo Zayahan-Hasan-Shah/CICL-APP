@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:cicl_app/src/controllers/exception_controller/exception_controller.dart';
 import 'package:cicl_app/src/core/constants/api_url.dart';
@@ -27,31 +26,21 @@ class AuthController extends StateNotifier<AuthState> {
 
   // Method to login without requiring WidgetRef
   Future<UserModel?> loginWithoutRef(String username, String password) async {
-    log("AuthController → Login started for $username");
-
     try {
-      log("*** API URL : ${ApiUrl.loginUrl} ***");
       final response = await http.post(
         Uri.parse(ApiUrl.loginUrl),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"username": username, "password": password}),
       );
 
-      log("AuthController → Response code: ${response.statusCode}");
-      log("AuthController → Raw body: ${response.body}");
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
         if (data is Map && data.containsKey("code")) {
-          // error response
-          final message = data["message"] ?? "Invalid credentials";
-          log("AuthController → Login failed: $message");
           return null;
         } else {
           // success response (user object)
           final user = UserModel.fromJson(data);
-          log("AuthController → Login success: ${user.name}");
 
           // Save JWT token with 60-day validity
           await _storageService.saveJwtToken(
@@ -60,27 +49,20 @@ class AuthController extends StateNotifier<AuthState> {
           );
 
           // Save additional user details
-          log("Card NO:  ${user.cardNumber}");
           await _storageService.saveCardNumber(user.cardNumber);
 
           return user;
         }
       }
-    } on SocketException catch (e) {
-      log("AuthController → Network error: $e");
+    } on SocketException catch (_) {
       return null;
-    } on TimeoutException catch (e) {
-      log("AuthController → Request timed out: $e");
+    } on TimeoutException catch (_) {
       return null;
-    } on FormatException catch (e) {
-      log("AuthController → Response format error: $e");
+    } on FormatException catch (_) {
       return null;
-    } on HttpException catch (e) {
-      log("AuthController → HTTP error: $e");
+    } on HttpException catch (_) {
       return null;
-    } catch (e, stackTrace) {
-      log("AuthController → Unexpected exception: $e");
-      log("AuthController → Stack trace: $stackTrace");
+    } catch (e) {
       return null;
     }
 
@@ -92,7 +74,6 @@ class AuthController extends StateNotifier<AuthState> {
     String password,
     WidgetRef ref,
   ) async {
-    log("AuthController → Login started for $username");
     state = AuthLoading();
 
     try {
@@ -109,10 +90,8 @@ class AuthController extends StateNotifier<AuthState> {
         // Explicitly handle null user (invalid credentials)
         state = AuthError("Invalid credentials. Please try again.");
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       // Detailed error handling
-      log("AuthController → Login error: $e");
-      log("AuthController → Stack trace: $stackTrace");
 
       if (e is NetworkException) {
         state = AuthError(e.message);
@@ -125,52 +104,36 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   Future<UserModel?> _performLoginApi(String username, String password) async {
-    log("AuthController → Login started for $username");
-
     try {
-      log("*** API URL : ${ApiUrl.loginUrl} ***");
       final response = await http.post(
         Uri.parse(ApiUrl.loginUrl),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"username": username, "password": password}),
       );
 
-      log("AuthController → Response code: ${response.statusCode}");
-      log("AuthController → Raw body: ${response.body}");
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
         if (data is Map && data.containsKey("code")) {
-          // error response
-          final message = data["message"] ?? "Invalid credentials";
-          log("AuthController → Login failed: $message");
           return null;
         } else {
           // success response (user object)
           final user = UserModel.fromJson(data);
-          log("AuthController → Login success: ${user.name}");
 
           return user;
         }
       }
-    } on SocketException catch (e) {
-      log("AuthController → Network error: $e");
+    } on SocketException catch (_) {
       throw NetworkException(
         "No Internet connection. Please check your network.",
       );
-    } on TimeoutException catch (e) {
-      log("AuthController → Request timed out: $e");
+    } on TimeoutException catch (_) {
       throw NetworkException("The request timed out. Please try again.");
-    } on FormatException catch (e) {
-      log("AuthController → Response format error: $e");
+    } on FormatException catch (_) {
       throw NetworkException("Invalid response format from the server.");
-    } on HttpException catch (e) {
-      log("AuthController → HTTP error: $e");
+    } on HttpException catch (_) {
       throw NetworkException("Server returned an invalid response.");
-    } catch (e, stackTrace) {
-      log("AuthController → Unexpected exception: $e");
-      log("AuthController → Stack trace: $stackTrace");
+    } catch (e) {
       throw UnexpectedException(
         "An unexpected error occurred. Please try again.",
       );
@@ -206,46 +169,30 @@ class AuthController extends StateNotifier<AuthState> {
         unawaited(claimProvider.fetchClaims(page: 0, pageSize: 10));
 
         // Save additional data after fetching
-        final familyState = await ref.read(familyMemberControllerProvider);
-        final familyNames = await familyState.family;
-
-        log("familyName: $familyNames");
+        final familyState = ref.read(familyMemberControllerProvider);
+        final familyNames = familyState.family;
 
         await _storageService.saveUserAndFamilyNames(
           userName: user.name,
           familyNames: familyNames,
         );
       } catch (e) {
-        log("Background data fetch error: $e");
         // Silently handle errors to not disrupt user experience
       }
     });
   }
 
   Future<void> initializeUserSession(WidgetRef ref) async {
-  try {
-    final tokenValid = await _storageService.isTokenValid();
-    if (!tokenValid) return;
+    try {
+      final tokenValid = await _storageService.isTokenValid();
+      if (!tokenValid) return;
 
-    // Get user info from storage if available
-    final username = await _storageService.getName();
-    final cardNumber = await _storageService.getCardNumber();
-    final token = await _storageService.getAccessToken();
+      // Trigger your dependent providers to fetch fresh data
+      final familyProvider = ref.read(familyMemberControllerProvider.notifier);
+      final claimProvider = ref.read(claimControllerProvider.notifier);
 
-    log('Re-initializing user session for $username');
-
-    // Trigger your dependent providers to fetch fresh data
-    final familyProvider = ref.read(familyMemberControllerProvider.notifier);
-    final claimProvider = ref.read(claimControllerProvider.notifier);
-
-    unawaited(familyProvider.fetchFamilyMembers());
-    unawaited(claimProvider.fetchClaims(page: 0, pageSize: 10));
-
-    log('User session re-initialized successfully');
-  } catch (e, st) {
-    log('Error reinitializing session: $e');
-    log(st.toString());
+      unawaited(familyProvider.fetchFamilyMembers());
+      unawaited(claimProvider.fetchClaims(page: 0, pageSize: 10));
+    } catch (_) {}
   }
-}
-
 }

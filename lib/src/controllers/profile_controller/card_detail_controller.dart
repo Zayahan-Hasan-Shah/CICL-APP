@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/models/profile_model/card_detail_model.dart';
@@ -14,9 +12,7 @@ class CardDetailsController extends StateNotifier<CardDetailsState> {
     state = state.copyWith(isLoading: true);
 
     try {
-      log("*** API URL : ${ApiUrl.familyMembers} ***");
       final token = await StorageService().getAccessToken();
-      log("CardDetailController → Using access token: $token");
       final url = Uri.parse(ApiUrl.cardDetailUrl);
       final response = await http.post(
         url,
@@ -25,8 +21,6 @@ class CardDetailsController extends StateNotifier<CardDetailsState> {
           "Authorization": "Bearer $token",
         },
       );
-      log("CardDetailController → Response status: ${response.statusCode}");
-      log("CardDetailController → Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final result = cardDetailsResponseFromJson(response.body);

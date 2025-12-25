@@ -129,6 +129,7 @@ class _HospitalListScreenState extends ConsumerState<HospitalListScreen> {
                         ),
                         child: ListTile(
                           onTap: () {
+                            final navigator = Navigator.of(context);
                             showDialog(
                               context: context,
                               barrierDismissible: true,
@@ -144,8 +145,8 @@ class _HospitalListScreenState extends ConsumerState<HospitalListScreen> {
 
                             Future.delayed(const Duration(seconds: 2), () {
                               if (!mounted) return;
-                              if (Navigator.of(context).canPop()) {
-                                Navigator.of(context).pop();
+                              if (navigator.canPop()) {
+                                navigator.pop();
                               }
                             });
                           },

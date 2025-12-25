@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
@@ -14,7 +13,6 @@ class AddFamilyController extends StateNotifier<AddFamilyState> {
     try {
       state = state.copyWith(loading: true, error: null, message: null);
       final token = await StorageService().getAccessToken();
-      log("AddFamilyController → Using access token: $token");
 
       final uri = Uri.parse(ApiUrl.addFamilyMembers);
 
@@ -33,8 +31,6 @@ class AddFamilyController extends StateNotifier<AddFamilyState> {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      log("AddFamilyController → Status: ${response.statusCode}");
-      log("AddFamilyController → Body: ${response.body}");
 
       if (response.statusCode == 200) {
         final jsonBody = json.decode(response.body);
@@ -56,8 +52,7 @@ class AddFamilyController extends StateNotifier<AddFamilyState> {
           error: "Failed with status ${response.statusCode}",
         );
       }
-    } catch (e, st) {
-      log("AddFamilyController → Error: $e\n$st");
+    } catch (e) {
       state = state.copyWith(loading: false, error: e.toString());
     }
   }

@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/controllers/auth_controller/login_controller.dart';
@@ -31,13 +30,8 @@ class FingerprintAuthController extends StateNotifier<FingerprintAuthState> {
       final isFingerprintEnabled = await _storageService.isFingerprintLoginEnabled();
       final savedCredentials = await _storageService.getFingerprintCredentials();
 
-      log('Fingerprint Authentication Checks:');
-      log('Fingerprint Login Enabled: $isFingerprintEnabled');
-      log('Saved Credentials Available: ${savedCredentials != null}');
-
       // Comprehensive check for fingerprint login readiness
       if (!isFingerprintEnabled) {
-        log('Fingerprint login not enabled');
         state = const FingerprintAuthError(
           'Fingerprint login is not set up. Please log in with your username and password, then enable fingerprint login in the login screen.'
         );
@@ -45,7 +39,6 @@ class FingerprintAuthController extends StateNotifier<FingerprintAuthState> {
       }
 
       if (savedCredentials == null) {
-        log('No saved credentials found');
         state = const FingerprintAuthError(
           'Saved credentials not found. Please log in with your username and password, then set up fingerprint login again.'
         );
@@ -55,10 +48,6 @@ class FingerprintAuthController extends StateNotifier<FingerprintAuthState> {
       // Check if biometric authentication is available
       bool canCheckBiometrics = await _localAuthentication.canCheckBiometrics;
       bool isDeviceSupported = await _localAuthentication.isDeviceSupported();
-
-      log(
-        'Biometric Check - Can Check: $canCheckBiometrics, Device Supported: $isDeviceSupported',
-      );
 
       if (!canCheckBiometrics || !isDeviceSupported) {
         state = const FingerprintAuthNotAvailable(
@@ -71,8 +60,6 @@ class FingerprintAuthController extends StateNotifier<FingerprintAuthState> {
       final List<BiometricType> availableBiometrics = await _localAuthentication
           .getAvailableBiometrics();
 
-      log('Available Biometric Types: $availableBiometrics');
-
       // Determine authentication message based on available biometrics
       String authMessage = _getAuthenticationMessage(availableBiometrics);
 
@@ -84,8 +71,6 @@ class FingerprintAuthController extends StateNotifier<FingerprintAuthState> {
           biometricOnly: true,
         ),
       );
-
-      log('Authentication Result: $authenticated');
 
       if (authenticated) {
         // Perform login outside of widget context
@@ -102,18 +87,12 @@ class FingerprintAuthController extends StateNotifier<FingerprintAuthState> {
             context.go('/dashboardscreen', extra: 0);
           }
         } else {
-          log('Login failed with saved credentials');
           state = const FingerprintAuthError('Login failed with saved credentials');
         }
       } else {
         state = const FingerprintAuthError('Authentication failed');
       }
-    } catch (e, stackTrace) {
-      log(
-        'Biometric authentication error: $e',
-        error: e,
-        stackTrace: stackTrace,
-      );
+    } catch (e) {
       state = const FingerprintAuthError(
         'An error occurred during authentication',
       );
@@ -130,20 +109,11 @@ class FingerprintAuthController extends StateNotifier<FingerprintAuthState> {
       // Save credentials for future fingerprint login
       await _storageService.enableFingerprintLogin(email, password);
 
-      // Verify credentials were saved
-      final savedCredentials = await _storageService.getFingerprintCredentials();
-      final isFingerprintEnabled = await _storageService.isFingerprintLoginEnabled();
-
-      log('Fingerprint login setup verification:');
-      log('Saved Credentials: ${savedCredentials != null}');
-      log('Fingerprint Enabled: $isFingerprintEnabled');
-
       // Clear user-specific data without removing access token
       await _storageService.clearAllData();
 
       state = const FingerprintAuthSuccess('Fingerprint login setup successful');
     } catch (e) {
-      log('Fingerprint login setup error: $e', error: e);
       state = const FingerprintAuthError('Failed to set up fingerprint login');
     }
   }
@@ -151,11 +121,9 @@ class FingerprintAuthController extends StateNotifier<FingerprintAuthState> {
   // Separate method to perform login without widget context
   Future<bool> _performLogin(String email, String password) async {
     try {
-      log("Performing login for: $email");
       final response = await _authController.loginWithoutRef(email, password);
       return response != null;
     } catch (e) {
-      log("Login error: $e");
       return false;
     }
   }

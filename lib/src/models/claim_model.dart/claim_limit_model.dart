@@ -69,12 +69,12 @@ class UserLimitData {
 }
 
 class OPDClaims {
-  final String bill_amount;
+  final String billAmount;
   final String approved;
   final String? deduction;
   final int clmseqnos;
-  final String employee_no;
-  final String cl_cicempno;
+  final String employeeNo;
+  final String clCicempno;
   final int colcode;
   final String reportdate;
   final String glvoucherno;
@@ -82,12 +82,12 @@ class OPDClaims {
   final String colname;
 
   OPDClaims({
-    required this.bill_amount,
+    required this.billAmount,
     required this.approved,
     this.deduction,
     required this.clmseqnos,
-    required this.employee_no,
-    required this.cl_cicempno,
+    required this.employeeNo,
+    required this.clCicempno,
     required this.colcode,
     required this.reportdate,
     required this.glvoucherno,
@@ -97,12 +97,12 @@ class OPDClaims {
 
   factory OPDClaims.fromJson(Map<String, dynamic> json) {
     return OPDClaims(
-      bill_amount: json['bill_amount']?.toString() ?? '',
+      billAmount: json['bill_amount']?.toString() ?? '',
       approved: json['approved']?.toString() ?? '',
       deduction: json['deduction']?.toString(),
       clmseqnos: json['clmseqnos'] ?? 0,
-      employee_no: json['employee_no']?.toString() ?? '',
-      cl_cicempno: json['cl_cicempno']?.toString() ?? '',
+      employeeNo: json['employee_no']?.toString() ?? '',
+      clCicempno: json['cl_cicempno']?.toString() ?? '',
       colcode: json['colcode'] ?? 0,
       reportdate: json['reportdate']?.toString() ?? '',
       glvoucherno: json['glvoucherno']?.toString() ?? '',
