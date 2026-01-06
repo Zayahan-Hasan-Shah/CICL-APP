@@ -26,6 +26,11 @@ class _FamilyListScreenState extends ConsumerState<FamilyListScreen> {
     _searchController.addListener(() {
       setState(() {}); // rebuild UI when search text changes
     });
+    
+    // Fetch family members when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(familyMemberControllerProvider.notifier).fetchFamilyMembers();
+    });
   }
 
   @override

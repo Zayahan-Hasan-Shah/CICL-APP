@@ -39,6 +39,11 @@ class _ClaimListScreenState extends ConsumerState<ClaimListScreen> {
     _searchController.addListener(() {
       setState(() {}); // rebuild UI when search text changes
     });
+    
+    // Fetch claims when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(claimControllerProvider.notifier).fetchClaims(page: 0, pageSize: 10);
+    });
   }
 
   @override

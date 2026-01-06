@@ -30,7 +30,6 @@ class ClaimController extends StateNotifier<ClaimState> {
         "pageSize": pageSize,
       };
 
-
       final response = await http.post(
         url,
         body: jsonEncode(bodySent),
@@ -39,7 +38,6 @@ class ClaimController extends StateNotifier<ClaimState> {
           "Authorization": "Bearer $token",
         },
       );
-
 
       if (response.statusCode == 200) {
         final jsonBody = json.decode(response.body);
@@ -51,11 +49,7 @@ class ClaimController extends StateNotifier<ClaimState> {
         final claims = result.map((e) => Claim.fromJson(e)).toList();
         final claimSeqNos = claims.map((e) => e.clmseqnos.toString()).toList();
         await StorageService().saveClaimSeqNos(claimSeqNos);
-        state = state.copyWith(
-          loading: false,
-          claims: claims,
-          total: total,
-        );
+        state = state.copyWith(loading: false, claims: claims, total: total);
       } else {
         state = state.copyWith(
           loading: false,
@@ -63,10 +57,7 @@ class ClaimController extends StateNotifier<ClaimState> {
         );
       }
     } catch (e) {
-      state = state.copyWith(
-        loading: false,
-        error: e.toString(),
-      );
+      state = state.copyWith(loading: false, error: e.toString());
     }
   }
 }
