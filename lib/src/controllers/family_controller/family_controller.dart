@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
@@ -23,6 +24,10 @@ class FamilyController extends StateNotifier<FamilyState> {
           "Authorization": "Bearer $token",
         },
       );
+
+      log("Request");
+      log("status : ${response.statusCode}");
+      log("body : ${response.body}");
 
       if (response.statusCode == 200) {
         final jsonBody = json.decode(response.body);

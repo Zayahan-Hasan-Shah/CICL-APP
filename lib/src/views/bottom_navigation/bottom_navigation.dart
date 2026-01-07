@@ -1,5 +1,6 @@
 import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/models/bottom_navigation_model/bottom_nav_item.dart';
+import 'package:cicl_app/src/providers/auth_provider/login_provider.dart';
 import 'package:cicl_app/src/providers/bottom_navigation_provider/bottom_navigation_provider.dart';
 import 'package:cicl_app/src/views/bottom_navigation/screens/claim/claim_list_screen.dart';
 import 'package:cicl_app/src/views/bottom_navigation/screens/family/family_list_screen.dart';
@@ -24,6 +25,19 @@ class _BottomNavigationState extends ConsumerState<BottomNavigation> {
     const ClaimListScreen(),
     const ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Ensure user session–dependent APIs are initialized whenever
+    // the dashboard/bottom navigation is loaded.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(authControllerProvider.notifier)
+          .initializeUserSession(ref);
+    });
+  }
   @override
   Widget build(BuildContext context) {
     final currentIndex = ref.watch(bottomNavigationProvider);

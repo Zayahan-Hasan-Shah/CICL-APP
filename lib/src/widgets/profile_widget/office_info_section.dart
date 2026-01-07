@@ -4,6 +4,7 @@ import 'package:sizer/sizer.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/models/profile_model/card_detail_model.dart';
 import 'profile_detail_card.dart';
+import 'package:intl/intl.dart';
 
 class OfficeInfoSection extends StatelessWidget {
   final CardDetailsData data;
@@ -25,13 +26,24 @@ class OfficeInfoSection extends StatelessWidget {
           _divider(),
           ProfileDetailCard(label: 'Policy Number', value: data.policyNumber),
           _divider(),
-          ProfileDetailCard(label: 'Expiry Date', value: data.expiryDate),
+          ProfileDetailCard(
+            label: 'Expiry Date',
+            value: DateFormat(
+              'dd-MM-yyyy',
+            ).format(DateTime.parse(data.expiryDate)).toString(),
+          ),
           _divider(),
           ProfileDetailCard(label: 'CNIC', value: data.cnic),
           _divider(),
-          ProfileDetailCard(label: 'Employee Name', value: data.employeeName.toTitleCase()),
+          ProfileDetailCard(
+            label: 'Employee Name',
+            value: data.employeeName.toTitleCase(),
+          ),
           _divider(),
-          ProfileDetailCard(label: 'Designation', value: data.employeeDesignation),
+          ProfileDetailCard(
+            label: 'Designation',
+            value: data.employeeDesignation,
+          ),
           _divider(),
           ProfileDetailCard(label: 'Card Number', value: data.cardNumber),
           _divider(),
@@ -41,5 +53,6 @@ class OfficeInfoSection extends StatelessWidget {
     );
   }
 
-  Widget _divider() => Divider(color: AppColors.buttonColor1.withAlpha(77), height: 2.h);
+  Widget _divider() =>
+      Divider(color: AppColors.buttonColor1.withAlpha(77), height: 2.h);
 }

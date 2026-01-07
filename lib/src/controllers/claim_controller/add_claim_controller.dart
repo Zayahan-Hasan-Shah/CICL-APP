@@ -5,6 +5,7 @@ import 'package:cicl_app/src/models/claim_model.dart/add_claim_model.dart';
 import 'package:cicl_app/src/states/claim_state/add_claim_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
+import 'dart:developer';
 
 class AddClaimController extends StateNotifier<AddClaimState> {
   AddClaimController() : super(AddClaimState());
@@ -42,10 +43,28 @@ class AddClaimController extends StateNotifier<AddClaimState> {
         }
       }
 
+      // Detailed logging for backend debugging
+      log('AddClaim Request');
+      log('API: $uri');
+      log('Headers: ${request.headers}');
+      log('Fields (form-data): ${jsonEncode(request.fields)}');
+
+      final filesLog = request.files
+          .map((f) => {
+                'field': f.field,
+                'filename': f.filename,
+                'length': f.length,
+              })
+          .toList();
+      log('Files (summary): ${jsonEncode(filesLog)}');
+
       // Send request
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
+      log("Response");
+      log("status code : ${response.statusCode}");
+      log("response body : ${response.body}");
 
       if (response.statusCode == 200) {
         final jsonBody = json.decode(response.body);

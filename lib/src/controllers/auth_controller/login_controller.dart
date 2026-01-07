@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:cicl_app/src/controllers/exception_controller/exception_controller.dart';
 import 'package:cicl_app/src/core/constants/api_url.dart';
@@ -32,6 +33,9 @@ class AuthController extends StateNotifier<AuthState> {
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"username": username, "password": password}),
       );
+
+      log("Auth Response");
+      log("response body : ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -110,6 +114,10 @@ class AuthController extends StateNotifier<AuthState> {
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"username": username, "password": password}),
       );
+
+      log("AAAAAAa");
+      log("response : ${response.body}");
+      log("status : ${response.statusCode}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

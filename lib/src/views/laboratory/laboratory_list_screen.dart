@@ -26,6 +26,18 @@ class _LaboratoryListScreenState extends ConsumerState<LaboratoryListScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_filterLaboratories);
+
+    // Ensure laboratories are fetched when the screen is first opened
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final providers = ref.read(laboratoryProvidersProvider);
+      if (providers.isNotEmpty) {
+        final defaultProvider = providers.first;
+        setState(() => _selectedProvider = defaultProvider);
+        ref
+            .read(laboratoryProvider.notifier)
+            .fetchLaboratoriesByProvider(defaultProvider);
+      }
+    });
   }
 
   void _filterLaboratories() {

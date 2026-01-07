@@ -10,4 +10,5 @@ class ApiUrl {
   static const familyMembers = '$baseUrl/api/family-members';
   static const addFamilyMembers = '$baseUrl/api/add-family-member';
   static const cardDetailUrl = '$baseUrl/api/get-card-details';
+  static const getServicesUrl = '$baseUrl/api/get-services';
 }
