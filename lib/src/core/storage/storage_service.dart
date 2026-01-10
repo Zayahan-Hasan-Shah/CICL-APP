@@ -9,11 +9,30 @@ class StorageService {
   static const _familyNames = 'family_names';
   static const _cardNumber = 'card_number';
   static const _claimSeqNos = 'claim_seq_nos';
+  static const _isMarried = "is_married";
 
   // New constants for fingerprint login
   static const _fingerprintEmail = 'fingerprint_email';
   static const _fingerprintPassword = 'fingerprint_password';
   static const _fingerprintEnabled = 'fingerprint_enabled';
+
+  Future<void> saveIsMarried(String married) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_isMarried, married);
+    } catch (_) {}
+  }
+
+  Future<String?> getIsMarried() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final married = prefs.getString(_isMarried);
+      if (married == null || married.isEmpty) {}
+      return married;
+    } catch (e) {
+      return null;
+    }
+  }
 
   Future<void> saveName(String name) async {
     try {
@@ -110,6 +129,7 @@ class StorageService {
   Future<void> saveJwtToken({
     required String token,
     required String username,
+    required String married,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     // Try to use JWT's own exp claim for expiry; fallback to 60 days
@@ -141,6 +161,7 @@ class StorageService {
 
     await prefs.setString(_accesstoken, token);
     await prefs.setString(_userame, username);
+    await prefs.setString(_isMarried, married);
     await prefs.setString(_tokenExpiry, expiryDate.toIso8601String());
   }
 

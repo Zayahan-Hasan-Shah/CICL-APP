@@ -10,6 +10,7 @@ class UserModel {
   final String staffDesignation;
   final String staffLocation;
   final String family;
+  final String married;
 
   UserModel({
     required this.accessToken,
@@ -23,6 +24,7 @@ class UserModel {
     required this.staffDesignation,
     required this.staffLocation,
     required this.family,
+    required this.married,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class UserModel {
       staffDesignation: json['staff_designation'] ?? '',
       staffLocation: json['staff_location'] ?? '',
       family: json['family'] ?? '',
+      married: json['married'] ?? '',
     );
   }
 
@@ -54,6 +57,7 @@ class UserModel {
       "staff_designation": staffDesignation,
       "staff_location": staffLocation,
       "family": family,
+      "married": married,
     };
   }
 }

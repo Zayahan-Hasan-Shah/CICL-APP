@@ -178,7 +178,7 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
     super.dispose();
   }
 
-  void _submitAllClaims() {
+  Future<void> _submitAllClaims() async {
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -202,6 +202,17 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
       }
     }
 
+    final storage = StorageService();
+    final marriedRaw = (await storage.getIsMarried()) ?? '';
+    final married = marriedRaw.trim().toUpperCase();
+
+    // Determine service code based on married flag from login API
+    final serviceCode =
+        (married == 'Y' || married == 'YES') ? '70005' : '70004';
+
+    // employeeNo should always be the cardNumber saved at login
+    final cardNumber = (await storage.getCardNumber()) ?? '';
+
     final claims = List.generate(_billNoControllers.length, (index) {
       final isHospital = _benefitTypes[index] == "Hospital";
 
@@ -210,8 +221,8 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
           ClaimItem(
             billNo: _billNoControllers[index].text.trim(),
             billDate: _billDateControllers[index].text.trim(),
-            employeeNo: _patients[index]!, // consider safer handling
-            serviceCode: _benefitTypes[index]!,
+            employeeNo: cardNumber,
+            serviceCode: serviceCode,
             billAmount: _billAmountControllers[index].text.trim(),
             hospital: _hosLabClinDrControllers[index].text.trim(),
             admitDate: isHospital
@@ -589,31 +600,42 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
       onPressed: () {
         if (_formKey.currentState!.validate()) {
           // Create multiple claims
-          final claims = List.generate(
-            _billNoControllers.length,
-            (index) => AddClaimModel(
-              items: [
-                ClaimItem(
-                  billNo: _billNoControllers[index].text.trim(),
-                  billDate: _billDateControllers[index].text.trim(),
-                  employeeNo: _patients[index]!,
-                  serviceCode: _benefitTypes[index].toString(),
-                  billAmount: _billAmountControllers[index].text.trim(),
-                  hospital: _hosLabClinDrControllers[index].text.trim(),
-                  admitDate: _admissionDateControllers[index].text.trim(),
-                  dischargeDate: _dischargeDateControllers[index].text.trim(),
-                  attachments: _uploadedFilesList[index]
-                      .map((f) => Attachment(File(f.path!)))
-                      .toList(),
-                ),
-              ],
-            ),
-          );
+          final storage = StorageService();
 
-          // Submit all claims
-          for (var claim in claims) {
-            ref.read(addClaimProvider.notifier).addClaim(claim);
-          }
+          storage.getIsMarried().then((marriedRaw) async {
+            final married = (marriedRaw ?? '').trim().toUpperCase();
+            final serviceCode =
+                (married == 'Y' || married == 'YES') ? '70005' : '70004';
+
+            final cardNumber = (await storage.getCardNumber()) ?? '';
+
+            final claims = List.generate(
+              _billNoControllers.length,
+              (index) => AddClaimModel(
+                items: [
+                  ClaimItem(
+                    billNo: _billNoControllers[index].text.trim(),
+                    billDate: _billDateControllers[index].text.trim(),
+                    employeeNo: cardNumber,
+                    serviceCode: serviceCode,
+                    billAmount: _billAmountControllers[index].text.trim(),
+                    hospital: _hosLabClinDrControllers[index].text.trim(),
+                    admitDate: _admissionDateControllers[index].text.trim(),
+                    dischargeDate:
+                        _dischargeDateControllers[index].text.trim(),
+                    attachments: _uploadedFilesList[index]
+                        .map((f) => Attachment(File(f.path!)))
+                        .toList(),
+                  ),
+                ],
+              ),
+            );
+
+            // Submit all claims
+            for (var claim in claims) {
+              ref.read(addClaimProvider.notifier).addClaim(claim);
+            }
+          });
         }
       },
       gradient: const LinearGradient(

@@ -8,6 +8,7 @@ import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/models/user_model/user_model.dart';
 import 'package:cicl_app/src/providers/claim_provider/claim_provider.dart';
 import 'package:cicl_app/src/providers/family_provider/family_provider.dart';
+import 'package:cicl_app/src/providers/service_provider/servvice_provider.dart';
 import 'package:cicl_app/src/states/auth_state/login_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,6 +51,7 @@ class AuthController extends StateNotifier<AuthState> {
           await _storageService.saveJwtToken(
             token: user.accessToken,
             username: user.name,
+            married: user.married,
           );
 
           // Save additional user details
@@ -155,6 +157,7 @@ class AuthController extends StateNotifier<AuthState> {
       _storageService.saveJwtToken(
         token: user.accessToken,
         username: user.name,
+        married: user.married,
       ),
       _storageService.saveAccessToken(user.accessToken),
       _storageService.saveCardNumber(user.cardNumber),
@@ -171,10 +174,12 @@ class AuthController extends StateNotifier<AuthState> {
           familyMemberControllerProvider.notifier,
         );
         final claimProvider = ref.read(claimControllerProvider.notifier);
+        final serviceProvider = ref.read(serviceControllerProvider.notifier);
 
         // These calls won't block the login process
         unawaited(familyProvider.fetchFamilyMembers());
         unawaited(claimProvider.fetchClaims(page: 0, pageSize: 10));
+        unawaited(serviceProvider.fetchService());
 
         // Save additional data after fetching
         final familyState = ref.read(familyMemberControllerProvider);
