@@ -1,3 +1,5 @@
+import 'package:cicl_app/src/models/family_model/family_model.dart';
+
 class UserModel {
   final String accessToken;
   final String clientCode;
@@ -9,7 +11,7 @@ class UserModel {
   final String staffCode;
   final String staffDesignation;
   final String staffLocation;
-  final String family;
+  final List<FamilyModel> family;
   final String married;
 
   UserModel({
@@ -28,6 +30,8 @@ class UserModel {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    final List<dynamic> familyJson = json['family'] ?? [];
+
     return UserModel(
       accessToken: json['access-token'] ?? '',
       clientCode: json['client_code'] ?? '',
@@ -39,7 +43,9 @@ class UserModel {
       staffCode: json['staff_code'] ?? '',
       staffDesignation: json['staff_designation'] ?? '',
       staffLocation: json['staff_location'] ?? '',
-      family: json['family'] ?? '',
+      family: familyJson
+          .map((e) => FamilyModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
       married: json['married'] ?? '',
     );
   }
@@ -56,7 +62,20 @@ class UserModel {
       "staff_code": staffCode,
       "staff_designation": staffDesignation,
       "staff_location": staffLocation,
-      "family": family,
+      "family": family
+          .map(
+            (e) => {
+              'branch_code': e.branchCode,
+              'client_code': e.clientCode,
+              'card_number': e.cardNumber,
+              'name': e.name,
+              'date_of_birth': e.dateOfBirth,
+              'relation': e.relation,
+              'gender': e.gender,
+              'cnic': e.cnic,
+            },
+          )
+          .toList(),
       "married": married,
     };
   }
