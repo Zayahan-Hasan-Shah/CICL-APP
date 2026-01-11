@@ -49,7 +49,13 @@ class ClaimController extends StateNotifier<ClaimState> {
         final claims = result.map((e) => Claim.fromJson(e)).toList();
         final claimSeqNos = claims.map((e) => e.clmseqnos.toString()).toList();
         await StorageService().saveClaimSeqNos(claimSeqNos);
-        state = state.copyWith(loading: false, claims: claims, total: total);
+        // On success, ensure any previous error is cleared
+        state = state.copyWith(
+          loading: false,
+          error: null,
+          claims: claims,
+          total: total,
+        );
       } else {
         state = state.copyWith(
           loading: false,

@@ -2,6 +2,8 @@ import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/models/bottom_navigation_model/bottom_nav_item.dart';
 import 'package:cicl_app/src/providers/auth_provider/login_provider.dart';
 import 'package:cicl_app/src/providers/bottom_navigation_provider/bottom_navigation_provider.dart';
+import 'package:cicl_app/src/providers/family_provider/family_provider.dart';
+import 'package:cicl_app/src/providers/claim_provider/claim_provider.dart';
 import 'package:cicl_app/src/views/bottom_navigation/screens/claim/claim_list_screen.dart';
 import 'package:cicl_app/src/views/bottom_navigation/screens/family/family_list_screen.dart';
 import 'package:cicl_app/src/views/bottom_navigation/screens/home/home_screen.dart';
@@ -40,6 +42,23 @@ class _BottomNavigationState extends ConsumerState<BottomNavigation> {
   }
   @override
   Widget build(BuildContext context) {
+    // Whenever the bottom navigation index changes, lazily (re)fetch
+    // data for the corresponding tab so that navigating via Home
+    // cards (which only change the index) always loads data.
+    ref.listen<int>(bottomNavigationProvider, (previous, next) {
+      if (next == 1) {
+        // Family tab
+        ref
+            .read(familyMemberControllerProvider.notifier)
+            .fetchFamilyMembers();
+      } else if (next == 2) {
+        // Claim tab
+        ref
+            .read(claimControllerProvider.notifier)
+            .fetchClaims(page: 0, pageSize: 10);
+      }
+    });
+
     final currentIndex = ref.watch(bottomNavigationProvider);
     return Scaffold(
       body: _screens[currentIndex],

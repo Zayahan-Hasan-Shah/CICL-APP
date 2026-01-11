@@ -39,7 +39,12 @@ class FamilyController extends StateNotifier<FamilyState> {
           userName: userName,
           familyNames: familyMembers,
         );
-        state = state.copyWith(loading: false, family: familyMembers);
+        // On success, ensure any previous error is cleared
+        state = state.copyWith(
+          loading: false,
+          error: null,
+          family: familyMembers,
+        );
       } else {
         state = state.copyWith(loading: false, error: "Please try again later");
       }
