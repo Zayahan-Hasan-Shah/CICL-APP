@@ -48,6 +48,9 @@ class OfficeInfoSection extends StatelessWidget {
           ProfileDetailCard(label: 'Card Number', value: data.cardNumber),
           _divider(),
           ProfileDetailCard(label: 'Plan', value: data.plan),
+          _divider(),
+          ProfileDetailCard(label: '24 Hour Helpline', value: 'KHI: 0301-8200445\nLHR: 0301-8316553\nISL: 0302-8316553'),
+          _divider(),
         ],
       ),
     );

@@ -1,12 +1,14 @@
 import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/core/constants/app_launcher_manager.dart';
+import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/providers/auth_provider/login_provider.dart';
 import 'package:cicl_app/src/routing/routes_names.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -20,6 +22,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     with TickerProviderStateMixin {
   AnimationController? _controller;
   Animation<double>? _animation;
+
+  Future<bool> _verifyTokenWithServer(String token) async {
+    try {
+      final uri = Uri.parse(ApiUrl.cardDetailUrl);
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 401) return false;
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
 
   @override
   void initState() {
@@ -47,21 +67,29 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           if (!mounted) return;
 
           if (isLoggedIn) {
-            // Check remaining token validity
-            final remainingValidity = await storageService
-                .getTokenRemainingValidity();
+            final token = await storageService.getAccessToken();
             if (!mounted) return;
 
-            if (remainingValidity != null) {
-              await ref
-                  .read(authControllerProvider.notifier)
-                  .initializeUserSession(ref);
-              if (!mounted) return;
-              context.go(RoutesNames.dashboardScreen, extra: 0);
-            } else {
-              // Token expired, go to login
+            if (token == null || token.isEmpty) {
               context.go(RoutesNames.loginScreen);
+              return;
             }
+
+            final serverValid = await _verifyTokenWithServer(token);
+            if (!mounted) return;
+
+            if (!serverValid) {
+              await storageService.fullLogout();
+              if (!mounted) return;
+              context.go(RoutesNames.loginScreen);
+              return;
+            }
+
+            await ref
+                .read(authControllerProvider.notifier)
+                .initializeUserSession(ref);
+            if (!mounted) return;
+            context.go(RoutesNames.dashboardScreen, extra: 0);
           } else {
             context.go(RoutesNames.loginScreen);
           }

@@ -132,8 +132,9 @@ class StorageService {
     required String married,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    // Try to use JWT's own exp claim for expiry; fallback to 60 days
-    DateTime expiryDate;
+    // Try to use JWT's own exp claim for expiry.
+    // If token is not a standard JWT / has no exp, do NOT invent an expiry.
+    DateTime? expiryDate;
     try {
       final parts = token.split('.');
       if (parts.length == 3) {
@@ -146,23 +147,22 @@ class StorageService {
           expiryDate = DateTime.fromMillisecondsSinceEpoch(
             payload['exp'] * 1000,
           );
-        } else {
-          // Fallback: 60 days from now
-          expiryDate = DateTime.now().add(const Duration(days: 60));
         }
-      } else {
-        // Not a standard JWT, fallback to 60 days
-        expiryDate = DateTime.now().add(const Duration(days: 60));
       }
     } catch (e) {
-      // On any parsing error, fallback to 60 days
-      expiryDate = DateTime.now().add(const Duration(days: 60));
+      // If parsing fails, keep expiryDate as null.
+      expiryDate = null;
     }
 
     await prefs.setString(_accesstoken, token);
     await prefs.setString(_userame, username);
     await prefs.setString(_isMarried, married);
-    await prefs.setString(_tokenExpiry, expiryDate.toIso8601String());
+
+    if (expiryDate != null) {
+      await prefs.setString(_tokenExpiry, expiryDate.toIso8601String());
+    } else {
+      await prefs.remove(_tokenExpiry);
+    }
   }
 
   // Check if token is valid
@@ -173,9 +173,10 @@ class StorageService {
     final token = prefs.getString(_accesstoken);
     if (token == null) return false;
 
-    // Check token expiry
+    // Check token expiry if it exists.
+    // If no expiry is stored (non-JWT tokens), treat it as present/usable.
     final expiryString = prefs.getString(_tokenExpiry);
-    if (expiryString == null) return false;
+    if (expiryString == null) return true;
 
     final expiryDate = DateTime.parse(expiryString);
     return expiryDate.isAfter(DateTime.now());
