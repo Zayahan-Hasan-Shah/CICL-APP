@@ -6,6 +6,7 @@ import 'package:cicl_app/src/models/family_model/add_family_model.dart';
 import 'package:cicl_app/src/states/family_state/add_family_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
+import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class AddFamilyController extends StateNotifier<AddFamilyState> {
   AddFamilyController() : super(AddFamilyState());
@@ -17,7 +18,10 @@ class AddFamilyController extends StateNotifier<AddFamilyState> {
       final uri = Uri.parse(ApiUrl.addFamilyMembers);
 
       final request = http.MultipartRequest("POST", uri)
-        ..headers.addAll({"Authorization": "Bearer $token"})
+        ..headers.addAll({
+          "Authorization": "Bearer $token",
+          "User-Agent": "CICL-Mobile-App/1.0",
+        })
         ..fields.addAll(
           model.toFormData().map((k, v) => MapEntry(k, v.toString())),
         )
@@ -28,8 +32,7 @@ class AddFamilyController extends StateNotifier<AddFamilyState> {
             filename: model.attachments.path.split("/").last,
           ),
         );
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
+      final response = await OptimizedHttpClient.sendMultipartRequest(request);
 
 
       if (response.statusCode == 200) {

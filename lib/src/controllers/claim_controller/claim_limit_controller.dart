@@ -5,6 +5,7 @@ import 'package:cicl_app/src/models/claim_model.dart/claim_limit_model.dart';
 import 'package:cicl_app/src/states/claim_state/claim_limit_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
+import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class ClaimLimitController extends StateNotifier<ClaimLimitState> {
   ClaimLimitController() : super(ClaimLimitState());
@@ -31,11 +32,12 @@ class ClaimLimitController extends StateNotifier<ClaimLimitState> {
         "year": DateTime.now().year.toString()
       });
 
-      final response = await http.post(
+      final response = await OptimizedHttpClient.getClient().post(
         url,
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
+          "User-Agent": "CICL-Mobile-App/1.0",
         },
         body: bodySent,
       );

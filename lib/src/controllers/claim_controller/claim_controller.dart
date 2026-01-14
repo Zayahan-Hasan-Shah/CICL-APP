@@ -6,6 +6,7 @@ import 'package:cicl_app/src/models/claim_model.dart/claim_model.dart';
 import 'package:cicl_app/src/states/claim_state/claim_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
+import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class ClaimController extends StateNotifier<ClaimState> {
   ClaimController() : super(ClaimState());
@@ -30,12 +31,13 @@ class ClaimController extends StateNotifier<ClaimState> {
         "pageSize": pageSize,
       };
 
-      final response = await http.post(
+      final response = await OptimizedHttpClient.getClient().post(
         url,
         body: jsonEncode(bodySent),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
+          "User-Agent": "CICL-Mobile-App/1.0",
         },
       );
 

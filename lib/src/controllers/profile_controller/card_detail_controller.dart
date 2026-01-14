@@ -4,6 +4,7 @@ import 'package:cicl_app/src/models/profile_model/card_detail_model.dart';
 import 'package:cicl_app/src/states/profile_state/card_detail_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
+import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class CardDetailsController extends StateNotifier<CardDetailsState> {
   CardDetailsController() : super(const CardDetailsState());
@@ -14,11 +15,12 @@ class CardDetailsController extends StateNotifier<CardDetailsState> {
     try {
       final token = await StorageService().getAccessToken();
       final url = Uri.parse(ApiUrl.cardDetailUrl);
-      final response = await http.post(
+      final response = await OptimizedHttpClient.getClient().post(
         url,
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
+          "User-Agent": "CICL-Mobile-App/1.0",
         },
       );
 

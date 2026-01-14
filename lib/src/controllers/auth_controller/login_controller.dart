@@ -13,6 +13,7 @@ import 'package:cicl_app/src/states/auth_state/login_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class AuthController extends StateNotifier<AuthState> {
   final StorageService _storageService;
@@ -29,9 +30,12 @@ class AuthController extends StateNotifier<AuthState> {
   // Method to login without requiring WidgetRef
   Future<UserModel?> loginWithoutRef(String username, String password) async {
     try {
-      final response = await http.post(
+      final response = await OptimizedHttpClient.getClient().post(
         Uri.parse(ApiUrl.loginUrl),
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": "CICL-Mobile-App/1.0",
+        },
         body: jsonEncode({"username": username, "password": password}),
       );
 
@@ -98,10 +102,11 @@ class AuthController extends StateNotifier<AuthState> {
       }
     } catch (e) {
       // Detailed error handling
-
+      log("MAIN ERROR : $e");
       if (e is NetworkException) {
         state = AuthError(e.message);
       } else {
+        log("ERROR : $e");
         state = AuthError("An unexpected error occurred. Please try again.");
       }
     }
@@ -111,9 +116,16 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<UserModel?> _performLoginApi(String username, String password) async {
     try {
-      final response = await http.post(
+      log("Request");
+      log("API : ${ApiUrl.loginUrl}");
+      log("body : $username $password");
+
+      final response = await OptimizedHttpClient.getClient().post(
         Uri.parse(ApiUrl.loginUrl),
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": "CICL-Mobile-App/1.0",
+        },
         body: jsonEncode({"username": username, "password": password}),
       );
 
@@ -144,8 +156,9 @@ class AuthController extends StateNotifier<AuthState> {
     } on HttpException catch (_) {
       throw NetworkException("Server returned an invalid response.");
     } catch (e) {
+      log("_performLoginApi ERROR: $e");
       throw UnexpectedException(
-        "An unexpected error occurred. Please try again.",
+        "An unexpected error occurred. Please try again. ($e)",
       );
     }
 

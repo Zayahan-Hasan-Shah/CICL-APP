@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/states/auth_state/forgot_password_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:http/http.dart' as http;
+import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class ForgotPasswordController extends StateNotifier<ForgotPasswordState> {
   ForgotPasswordController() : super(ForgotPasswordInitial());
@@ -8,13 +12,31 @@ class ForgotPasswordController extends StateNotifier<ForgotPasswordState> {
     state = ForgotPasswordLoading();
 
     try {
-      // Simulating API call with delay (replace with real API later)
-      await Future.delayed(const Duration(seconds: 2));
+      final response = await OptimizedHttpClient.getClient().post(
+        Uri.parse(ApiUrl.forgotPasswordUrl),
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": "CICL-Mobile-App/1.0",
+        },
+        body: jsonEncode({"username": email}),
+      );
 
-      // Assume success
-      state = ForgotPasswordSuccess("Message sent to $email");
+      if (response.statusCode == 200) {
+        final jsonBody = json.decode(response.body);
+        if (jsonBody["code"] == 200) {
+          state = ForgotPasswordSuccess(
+            jsonBody["message"] ?? "Reset link sent to $email",
+          );
+        } else {
+          state = ForgotPasswordError(
+            jsonBody["message"] ?? "Failed to send reset link",
+          );
+        }
+      } else {
+        state = ForgotPasswordError("Server error: ${response.statusCode}");
+      }
     } catch (e) {
-      state = ForgotPasswordError("Something went wrong");
+      state = ForgotPasswordError("Something went wrong: ${e.toString()}");
     }
   }
 }

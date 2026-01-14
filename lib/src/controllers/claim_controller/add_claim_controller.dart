@@ -6,6 +6,7 @@ import 'package:cicl_app/src/states/claim_state/add_claim_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer';
+import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class AddClaimController extends StateNotifier<AddClaimState> {
   AddClaimController() : super(AddClaimState());
@@ -23,6 +24,7 @@ class AddClaimController extends StateNotifier<AddClaimState> {
         ..headers.addAll({
           "Authorization": "Bearer $token",
           "Accept": "application/json",
+          "User-Agent": "CICL-Mobile-App/1.0",
         });
 
       // Add all claim fields
@@ -59,8 +61,7 @@ class AddClaimController extends StateNotifier<AddClaimState> {
       log('Files (summary): ${jsonEncode(filesLog)}');
 
       // Send request
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
+      final response = await OptimizedHttpClient.sendMultipartRequest(request);
 
       log("Response");
       log("status code : ${response.statusCode}");

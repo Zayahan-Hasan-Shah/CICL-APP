@@ -7,6 +7,7 @@ import 'package:cicl_app/src/models/family_model/family_model.dart';
 import 'package:cicl_app/src/states/family_state/family_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
+import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class FamilyController extends StateNotifier<FamilyState> {
   FamilyController() : super(FamilyState());
@@ -17,11 +18,12 @@ class FamilyController extends StateNotifier<FamilyState> {
       state = state.copyWith(loading: true, error: null);
       final token = await StorageService().getAccessToken();
       final url = Uri.parse(ApiUrl.familyMembers);
-      final response = await http.post(
+      final response = await OptimizedHttpClient.getClient().post(
         url,
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
+          "User-Agent": "CICL-Mobile-App/1.0",
         },
       );
 
