@@ -6,7 +6,6 @@ import 'package:cicl_app/src/models/claim_model.dart/claim_detail_model.dart'
 import 'package:cicl_app/src/states/claim_state/claim_detail_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
-import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class ClaimDetailController extends StateNotifier<ClaimDetailState> {
   ClaimDetailController() : super(ClaimDetailInitial());
@@ -16,17 +15,15 @@ class ClaimDetailController extends StateNotifier<ClaimDetailState> {
 
     try {
       final token = await StorageService().getAccessToken();
-      final response = await OptimizedHttpClient.getClient().post(
+      final response = await http.post(
         Uri.parse(ApiUrl.getClaimDetailUrl),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
           'User-Agent': 'CICL-Mobile-App/1.0',
         },
-
         body: jsonEncode({"clmseqnos": clmseqnos}),
       );
-
 
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);

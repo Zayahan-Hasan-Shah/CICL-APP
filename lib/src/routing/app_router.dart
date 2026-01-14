@@ -5,7 +5,7 @@ import 'package:cicl_app/src/views/auth/login_screen.dart';
 import 'package:cicl_app/src/views/bmi/bmi_screen.dart';
 import 'package:cicl_app/src/views/bottom_navigation/bottom_navigation.dart';
 import 'package:cicl_app/src/views/bottom_navigation/screens/claim/add_claim_screen.dart';
-import 'package:cicl_app/src/views/bottom_navigation/screens/claim/claim_Detail_screen.dart';
+import 'package:cicl_app/src/views/bottom_navigation/screens/claim/claim_detail_screen.dart';
 import 'package:cicl_app/src/views/bottom_navigation/screens/claim/claim_list_screen.dart';
 import 'package:cicl_app/src/views/bottom_navigation/screens/family/add_family_screen.dart';
 import 'package:cicl_app/src/views/bottom_navigation/screens/family/family_detail_screen.dart';

@@ -13,7 +13,6 @@ import 'package:cicl_app/src/states/auth_state/login_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class AuthController extends StateNotifier<AuthState> {
   final StorageService _storageService;
@@ -22,15 +21,13 @@ class AuthController extends StateNotifier<AuthState> {
     : _storageService = storageService ?? StorageService(),
       super(AuthInitial());
 
-  // Check if user is already logged in with a valid token
   Future<bool> checkExistingLogin() async {
     return await _storageService.isTokenValid();
   }
 
-  // Method to login without requiring WidgetRef
   Future<UserModel?> loginWithoutRef(String username, String password) async {
     try {
-      final response = await OptimizedHttpClient.getClient().post(
+      final response = await http.post(
         Uri.parse(ApiUrl.loginUrl),
         headers: {
           "Content-Type": "application/json",
@@ -48,19 +45,13 @@ class AuthController extends StateNotifier<AuthState> {
         if (data is Map && data.containsKey("code")) {
           return null;
         } else {
-          // success response (user object)
           final user = UserModel.fromJson(data);
-
-          // Save JWT token with 60-day validity
           await _storageService.saveJwtToken(
             token: user.accessToken,
             username: user.name,
             married: user.married,
           );
-
-          // Save additional user details
           await _storageService.saveCardNumber(user.cardNumber);
-
           return user;
         }
       }
@@ -75,7 +66,6 @@ class AuthController extends StateNotifier<AuthState> {
     } catch (e) {
       return null;
     }
-
     return null;
   }
 
@@ -89,19 +79,14 @@ class AuthController extends StateNotifier<AuthState> {
     try {
       final user = await _performLoginApi(username, password);
       if (user != null) {
-        // Save critical user data immediately
         await _saveEssentialUserData(user);
-        // Trigger background data fetching without awaiting
         _fetchAdditionalDataAsync(ref, user);
-
         state = AuthSuccess(user);
         return user;
       } else {
-        // Explicitly handle null user (invalid credentials)
         state = AuthError("Invalid credentials. Please try again.");
       }
     } catch (e) {
-      // Detailed error handling
       log("MAIN ERROR : $e");
       if (e is NetworkException) {
         state = AuthError(e.message);
@@ -110,7 +95,6 @@ class AuthController extends StateNotifier<AuthState> {
         state = AuthError("An unexpected error occurred. Please try again.");
       }
     }
-
     return null;
   }
 
@@ -120,7 +104,7 @@ class AuthController extends StateNotifier<AuthState> {
       log("API : ${ApiUrl.loginUrl}");
       log("body : $username $password");
 
-      final response = await OptimizedHttpClient.getClient().post(
+      final response = await http.post(
         Uri.parse(ApiUrl.loginUrl),
         headers: {
           "Content-Type": "application/json",
@@ -129,19 +113,15 @@ class AuthController extends StateNotifier<AuthState> {
         body: jsonEncode({"username": username, "password": password}),
       );
 
-      log("AAAAAAa");
       log("response : ${response.body}");
       log("status : ${response.statusCode}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
         if (data is Map && data.containsKey("code")) {
           return null;
         } else {
-          // success response (user object)
           final user = UserModel.fromJson(data);
-
           return user;
         }
       }
@@ -161,7 +141,6 @@ class AuthController extends StateNotifier<AuthState> {
         "An unexpected error occurred. Please try again. ($e)",
       );
     }
-
     return null;
   }
 
@@ -179,22 +158,18 @@ class AuthController extends StateNotifier<AuthState> {
   }
 
   void _fetchAdditionalDataAsync(WidgetRef ref, UserModel user) {
-    // Use Future.microtask to run these in the background
     Future.microtask(() async {
       try {
-        // Capture providers before potential widget unmounting
         final familyProvider = ref.read(
           familyMemberControllerProvider.notifier,
         );
         final claimProvider = ref.read(claimControllerProvider.notifier);
         final serviceProvider = ref.read(serviceControllerProvider.notifier);
 
-        // These calls won't block the login process
         unawaited(familyProvider.fetchFamilyMembers());
         unawaited(claimProvider.fetchClaims(page: 0, pageSize: 10));
         unawaited(serviceProvider.fetchService());
 
-        // Save additional data after fetching
         final familyState = ref.read(familyMemberControllerProvider);
         final familyNames = familyState.family;
 
@@ -202,9 +177,7 @@ class AuthController extends StateNotifier<AuthState> {
           userName: user.name,
           familyNames: familyNames,
         );
-      } catch (e) {
-        // Silently handle errors to not disrupt user experience
-      }
+      } catch (e) {}
     });
   }
 
@@ -213,11 +186,9 @@ class AuthController extends StateNotifier<AuthState> {
       final tokenValid = await _storageService.isTokenValid();
       if (!tokenValid) return;
 
-      // Trigger your dependent providers to fetch fresh data
       final familyProvider = ref.read(familyMemberControllerProvider.notifier);
       final claimProvider = ref.read(claimControllerProvider.notifier);
 
-      // Await the data fetching to ensure it completes
       await familyProvider.fetchFamilyMembers();
       await claimProvider.fetchClaims(page: 0, pageSize: 10);
     } catch (_) {}

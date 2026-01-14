@@ -6,7 +6,6 @@ import 'package:cicl_app/src/states/claim_state/add_claim_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer';
-import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class AddClaimController extends StateNotifier<AddClaimState> {
   AddClaimController() : super(AddClaimState());
@@ -16,10 +15,8 @@ class AddClaimController extends StateNotifier<AddClaimState> {
       state = state.copyWith(loading: true, error: null, message: null);
 
       final token = await StorageService().getAccessToken();
-
       final uri = Uri.parse(ApiUrl.addClaimUrl);
 
-      // Build request
       final request = http.MultipartRequest("POST", uri)
         ..headers.addAll({
           "Authorization": "Bearer $token",
@@ -27,14 +24,11 @@ class AddClaimController extends StateNotifier<AddClaimState> {
           "User-Agent": "CICL-Mobile-App/1.0",
         });
 
-      // Add all claim fields
       for (int i = 0; i < model.items.length; i++) {
         final item = model.items[i];
         final fields = item.toFormData(i);
-
         request.fields.addAll(fields);
 
-        // If you later need file uploads:
         for (int j = 0; j < item.attachments.length; j++) {
           request.files.add(
             await http.MultipartFile.fromPath(
@@ -45,31 +39,19 @@ class AddClaimController extends StateNotifier<AddClaimState> {
         }
       }
 
-      // Detailed logging for backend debugging
       log('AddClaim Request');
       log('API: $uri');
       log('Headers: ${request.headers}');
-      log('Fields (form-data): ${jsonEncode(request.fields)}');
+      log('Fields: ${jsonEncode(request.fields)}');
 
-      final filesLog = request.files
-          .map((f) => {
-                'field': f.field,
-                'filename': f.filename,
-                'length': f.length,
-              })
-          .toList();
-      log('Files (summary): ${jsonEncode(filesLog)}');
+      final response = await request.send();
+      final responseBody = await http.Response.fromStream(response);
 
-      // Send request
-      final response = await OptimizedHttpClient.sendMultipartRequest(request);
-
-      log("Response");
-      log("status code : ${response.statusCode}");
-      log("response body : ${response.body}");
+      log("Response status: ${response.statusCode}");
+      log("Response body: ${responseBody.body}");
 
       if (response.statusCode == 200) {
-        final jsonBody = json.decode(response.body);
-
+        final jsonBody = json.decode(responseBody.body);
         if (jsonBody["code"] == 200) {
           state = state.copyWith(
             loading: false,

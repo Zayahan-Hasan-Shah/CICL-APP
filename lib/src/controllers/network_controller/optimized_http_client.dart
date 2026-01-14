@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
@@ -9,20 +8,18 @@ class OptimizedHttpClient {
   static http.Client? _client;
   static HttpClient? _rawHttpClient;
 
-  /// Get a singleton HTTP client that bypasses SSL certificate verification
+  /// Get a singleton HTTP client
   static http.Client getClient() {
     if (_client == null) {
-      _rawHttpClient = HttpClient()
-        ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      _rawHttpClient = HttpClient();
       _client = IOClient(_rawHttpClient!);
     }
     return _client!;
   }
 
-  /// Send a MultipartRequest with SSL bypass
+  /// Send a MultipartRequest
   static Future<http.Response> sendMultipartRequest(http.MultipartRequest request) async {
-    final httpClient = HttpClient()
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    final httpClient = HttpClient();
     final ioClient = IOClient(httpClient);
     
     try {

@@ -1,7 +1,5 @@
 class ApiUrl {
   static const baseUrl = 'https://ciclportal.cicl.com.pk';
-  // static const baseUrl = 'https://ciclportal.com.pk';
-  // static const baseUrl = 'https://fussam.com';
   static const loginUrl = '$baseUrl/api/login';
   static const forgotPasswordUrl = '$baseUrl/api/forgot-password';
   static const getClaimUrl = '$baseUrl/api/get-claims';

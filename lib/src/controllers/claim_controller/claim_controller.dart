@@ -6,7 +6,6 @@ import 'package:cicl_app/src/models/claim_model.dart/claim_model.dart';
 import 'package:cicl_app/src/states/claim_state/claim_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
-import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class ClaimController extends StateNotifier<ClaimState> {
   ClaimController() : super(ClaimState());
@@ -20,10 +19,9 @@ class ClaimController extends StateNotifier<ClaimState> {
     try {
       state = state.copyWith(loading: true, error: null);
 
-      // ✅ get saved access token
       final token = await StorageService().getAccessToken();
-
       final url = Uri.parse(ApiUrl.getClaimUrl);
+
       final bodySent = {
         "startDate": startDate,
         "endDate": AppValidation().getCurrentDate(),
@@ -31,7 +29,7 @@ class ClaimController extends StateNotifier<ClaimState> {
         "pageSize": pageSize,
       };
 
-      final response = await OptimizedHttpClient.getClient().post(
+      final response = await http.post(
         url,
         body: jsonEncode(bodySent),
         headers: {
@@ -51,7 +49,7 @@ class ClaimController extends StateNotifier<ClaimState> {
         final claims = result.map((e) => Claim.fromJson(e)).toList();
         final claimSeqNos = claims.map((e) => e.clmseqnos.toString()).toList();
         await StorageService().saveClaimSeqNos(claimSeqNos);
-        // On success, ensure any previous error is cleared
+
         state = state.copyWith(
           loading: false,
           error: null,

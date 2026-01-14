@@ -6,7 +6,6 @@ import 'package:cicl_app/src/models/service_model/service_model.dart';
 import 'package:cicl_app/src/states/service_state/service_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
-import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class ServiceController extends StateNotifier<ServiceState> {
   ServiceController() : super(ServiceState());
@@ -16,8 +15,7 @@ class ServiceController extends StateNotifier<ServiceState> {
       state = state.copyWith(loading: true, error: null);
       final token = await StorageService().getAccessToken();
       final uri = Uri.parse(ApiUrl.getServicesUrl);
-
-      final response = await OptimizedHttpClient.getClient().post(
+      final response = await http.post(
         uri,
         headers: {
           "Content-Type": "application/json",
@@ -36,7 +34,6 @@ class ServiceController extends StateNotifier<ServiceState> {
           error: null,
         );
       } else {
-        // Handle non-200 responses
         state = state.copyWith(
           loading: false,
           error: 'Server error: ${response.statusCode}',

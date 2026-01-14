@@ -3,7 +3,6 @@ import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/states/auth_state/forgot_password_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
-import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class ForgotPasswordController extends StateNotifier<ForgotPasswordState> {
   ForgotPasswordController() : super(ForgotPasswordInitial());
@@ -12,7 +11,7 @@ class ForgotPasswordController extends StateNotifier<ForgotPasswordState> {
     state = ForgotPasswordLoading();
 
     try {
-      final response = await OptimizedHttpClient.getClient().post(
+      final response = await http.post(
         Uri.parse(ApiUrl.forgotPasswordUrl),
         headers: {
           "Content-Type": "application/json",
