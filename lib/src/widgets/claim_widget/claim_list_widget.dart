@@ -49,7 +49,7 @@ class ClaimListWidget extends StatelessWidget {
           children: [
             _buildText("Claim#$clmsEqnos", fontSize: 18.sp),
             _buildText(
-                DateFormat('dd-MMM-yyyy').format(DateTime.parse(reportDate)),
+                DateFormat('dd MMM, yyyy').format(DateTime.parse(reportDate)),
                 weight: FontWeight.w400),
             _buildAmount(AppValidation().formatAmount(billAmount)),
           ],

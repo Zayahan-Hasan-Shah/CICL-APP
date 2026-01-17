@@ -31,38 +31,38 @@ class LimitSection extends StatelessWidget {
             weight: FontWeight.w600,
           ),
           SizedBox(height: 1.h),
-          ...data.limits
-              .map(
-                (limit) => Padding(
-                  padding: EdgeInsets.symmetric(vertical: 0.5.h),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          limit.serviceName,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14.sp,
-                          ),
-                        ),
+          ...data.limits.map(
+            (limit) => Padding(
+              padding: EdgeInsets.symmetric(vertical: 0.5.h),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      limit.serviceName,
+                      maxLines: 2,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15.sp,
                       ),
-                      Expanded(
-                        child: Text(
-                          "Limit: ${limit.dateClaimPackageLimit1}",
-                          style: TextStyle(fontSize: 13.sp),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          limit.hospitalDescription,
-                          style: TextStyle(fontSize: 13.sp, color: Colors.grey),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  Expanded(
+                    child: Text(
+                      "Limit:\n${limit.dateClaimPackageLimit1}",
+                      style: TextStyle(fontSize: 14.sp),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      limit.hospitalDescription,
+                      style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+                    ),
+                  ),
+                ],
               ),
+            ),
+          ),
         ],
       ),
     );

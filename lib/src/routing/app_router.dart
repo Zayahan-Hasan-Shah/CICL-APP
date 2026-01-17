@@ -68,6 +68,7 @@ class AppRouter {
             gender: famMeb.gender == 'F' ? 'Female' : 'Male',
             cnicBform: 'XXXXX XXXXXXX X',
             dateOfBirth: famMeb.dateOfBirth,
+            clientName: famMeb.clientName,
           );
         },
       ),

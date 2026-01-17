@@ -1,11 +1,11 @@
 import 'package:cicl_app/src/core/constants/app_colors.dart';
-import 'package:cicl_app/src/models/claim_model.dart/claim_limit_model.dart';
+// import 'package:cicl_app/src/models/claim_model.dart/claim_limit_model.dart';
 import 'package:cicl_app/src/providers/claim_provider/claim_limit_provider.dart';
 import 'package:cicl_app/src/widgets/common_widgets/custom_text.dart';
-import 'package:cicl_app/src/widgets/limit_widget/hospitalization_limit_section.dart';
+// import 'package:cicl_app/src/widgets/limit_widget/hospitalization_limit_section.dart';
 import 'package:cicl_app/src/widgets/limit_widget/limit_section.dart';
 import 'package:cicl_app/src/widgets/limit_widget/limit_tab_button.dart';
-import 'package:cicl_app/src/widgets/limit_widget/opd_limit_section.dart';
+// import 'package:cicl_app/src/widgets/limit_widget/opd_limit_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -59,23 +59,23 @@ class _ClaimLimitScreenState extends ConsumerState<ClaimLimitScreen> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        LimitTabButton(
-                          title: "OPD",
-                          index: 0,
-                          selectedTab: seletectTab,
-                          onTap: _onTabSelected,
-                        ),
-                        SizedBox(width: 2.w),
-                        LimitTabButton(
-                          title: "HOSPITALIZATION",
-                          index: 1,
-                          selectedTab: seletectTab,
-                          onTap: _onTabSelected,
-                        ),
-                        SizedBox(width: 2.w),
+                        // LimitTabButton(
+                        //   title: "OPD",
+                        //   index: 0,
+                        //   selectedTab: seletectTab,
+                        //   onTap: _onTabSelected,
+                        // ),
+                        // SizedBox(width: 2.w),
+                        // LimitTabButton(
+                        //   title: "HOSPITALIZATION",
+                        //   index: 1,
+                        //   selectedTab: seletectTab,
+                        //   onTap: _onTabSelected,
+                        // ),
+                        // SizedBox(width: 2.w),
                         LimitTabButton(
                           title: "LIMITS",
-                          index: 2,
+                          index: 0,
                           selectedTab: seletectTab,
                           onTap: _onTabSelected,
                         ),
@@ -87,7 +87,8 @@ class _ClaimLimitScreenState extends ConsumerState<ClaimLimitScreen> {
                   // Existing tab content
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
-                    child: _buildTabContent(state.data!.data),
+                    child: LimitSection(data: state.data!.data),
+                    // child: _buildTabContent(state.data!.data),
                   ),
                 ],
               ),
@@ -99,16 +100,16 @@ class _ClaimLimitScreenState extends ConsumerState<ClaimLimitScreen> {
     setState(() => seletectTab = index);
   }
 
-  Widget _buildTabContent(UserLimitData data) {
-    switch (seletectTab) {
-      case 0:
-        return OpdLimitSection(data: data);
-      case 1:
-        return HospitalizationLimitSection(data: data);
-      case 2:
-        return LimitSection(data: data);
-      default:
-        return OpdLimitSection(data: data);
-    }
-  }
+  // Widget _buildTabContent(UserLimitData data) {
+  //   switch (seletectTab) {
+  //     case 0:
+  //       return OpdLimitSection(data: data);
+  //     case 1:
+  //       return HospitalizationLimitSection(data: data);
+  //     case 2:
+  //       return LimitSection(data: data);
+  //     default:
+  //       return OpdLimitSection(data: data);
+  //   }
+  // }
 }

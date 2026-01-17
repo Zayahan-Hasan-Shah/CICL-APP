@@ -85,7 +85,7 @@ class _BoardingScreenState extends State<BoardingScreen> {
           SizedBox(height: 0.5.h),
           CustomText(
             title:
-                "Lorem ipsum dolor sit amet, consectetur\n adipiscing elit. Vestibulum mollis nunc a molestie\n dictum. Mauris venenatis, felis consectetur\n adipiscing elit. Vestibulum mollis nunc a ",
+                "Century create customer\noriented smart phone application to address to your needs and get updated on all your Health Insurance. Takaful related concerns.",
             weight: FontWeight.normal,
             fontStyle: FontStyle.normal,
             fontSize: 15.sp,

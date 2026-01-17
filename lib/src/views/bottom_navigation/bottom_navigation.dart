@@ -28,6 +28,8 @@ class _BottomNavigationState extends ConsumerState<BottomNavigation> {
     const ProfileScreen(),
   ];
 
+  DateTime? _lastBackPressed;
+
   @override
   void initState() {
     super.initState();
@@ -60,34 +62,54 @@ class _BottomNavigationState extends ConsumerState<BottomNavigation> {
     });
 
     final currentIndex = ref.watch(bottomNavigationProvider);
-    return Scaffold(
-      body: _screens[currentIndex],
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentIndex,
-        onTap: (index) =>
-            ref.read(bottomNavigationProvider.notifier).setIndex(index),
-        items: [
-          BottomNavItem(
-            activeIcon: AppAssets.homeActiveIcon,
-            inactiveIcon: AppAssets.homeInacticeIcon,
-            label: 'Home',
-          ),
-          BottomNavItem(
-            activeIcon: AppAssets.familyActiveIcon,
-            inactiveIcon: AppAssets.familyInactiveIcon,
-            label: 'Family',
-          ),
-          BottomNavItem(
-            activeIcon: AppAssets.claimActiveIcon,
-            inactiveIcon: AppAssets.claimInactiveIcon,
-            label: 'Claim',
-          ),
-          BottomNavItem(
-            activeIcon: AppAssets.profileActiveIcon,
-            inactiveIcon: AppAssets.profielInActiveIcon,
-            label: 'Profile',
-          ),
-        ],
+    return WillPopScope(
+      onWillPop: () async {
+        if (currentIndex != 0) {
+          ref.read(bottomNavigationProvider.notifier).setIndex(0);
+          return false;
+        }
+
+        final now = DateTime.now();
+        if (_lastBackPressed == null ||
+            now.difference(_lastBackPressed!) > const Duration(seconds: 10)) {
+          _lastBackPressed = now;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Click again to exit')),
+          );
+          return false;
+        }
+
+        return true;
+      },
+      child: Scaffold(
+        body: _screens[currentIndex],
+        bottomNavigationBar: CustomBottomNavBar(
+          currentIndex: currentIndex,
+          onTap: (index) =>
+              ref.read(bottomNavigationProvider.notifier).setIndex(index),
+          items: [
+            BottomNavItem(
+              activeIcon: AppAssets.homeActiveIcon,
+              inactiveIcon: AppAssets.homeInacticeIcon,
+              label: 'Home',
+            ),
+            BottomNavItem(
+              activeIcon: AppAssets.familyActiveIcon,
+              inactiveIcon: AppAssets.familyInactiveIcon,
+              label: 'Family',
+            ),
+            BottomNavItem(
+              activeIcon: AppAssets.claimActiveIcon,
+              inactiveIcon: AppAssets.claimInactiveIcon,
+              label: 'Claim',
+            ),
+            BottomNavItem(
+              activeIcon: AppAssets.profileActiveIcon,
+              inactiveIcon: AppAssets.profielInActiveIcon,
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }

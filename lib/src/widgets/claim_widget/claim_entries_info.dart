@@ -24,7 +24,7 @@ class ClaimEntriesInfo extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           CustomText(
-            title: '$start of $total ',
+            title: 'Total Claims: $total ',
             weight: FontWeight.w500,
           ),
           Row(

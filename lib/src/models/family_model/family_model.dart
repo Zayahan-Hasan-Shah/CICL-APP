@@ -7,6 +7,7 @@ class FamilyModel {
   final String relation;
   final String gender;
   final String? cnic;
+  final String clientName;
 
   FamilyModel({
     required this.branchCode,
@@ -16,18 +17,20 @@ class FamilyModel {
     required this.dateOfBirth,
     required this.relation,
     required this.gender,
+    required this.clientName,
     this.cnic,
   });
 
   factory FamilyModel.fromJson(Map<String, dynamic> json) {
     return FamilyModel(
-      branchCode: json['branch_code'],
-      clientCode: json['client_code'],
-      cardNumber: json['card_number'],
-      name: json['name'],
-      dateOfBirth: json['date_of_birth'],
-      relation: json['relation'],
-      gender: json['gender'],
+      branchCode: json['branch_code'] ?? 0,
+      clientCode: (json['client_code'] ?? '').toString(),
+      clientName: (json['client_name'] ?? '').toString(),
+      cardNumber: (json['card_number'] ?? '').toString(),
+      name: (json['name'] ?? '').toString(),
+      dateOfBirth: (json['date_of_birth'] ?? '').toString(),
+      relation: (json['relation'] ?? '').toString(),
+      gender: (json['gender'] ?? '').toString(),
       cnic: json['cnic']?.toString(),
     );
   }

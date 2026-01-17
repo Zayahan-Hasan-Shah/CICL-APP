@@ -34,20 +34,13 @@ class LogoutService {
 
   Future<void> _performAdditionalCleanup() async {
     // Add any additional cleanup logic here
-    // For example, cancelling ongoing network requests, 
+    // For example, cancelling ongoing network requests,
     // clearing local caches, resetting app state, etc.
     try {
       // Example: Clear any cached data or reset app-specific states
       // You can add more specific cleanup methods as needed
     } catch (e) {
-      if (kDebugMode) {
-        print('Additional cleanup error: $e');
-      }
+      if (kDebugMode) {}
     }
   }
 }
-
-
-
-
-

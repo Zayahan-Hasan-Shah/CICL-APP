@@ -36,6 +36,31 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _enableFingerprintLogin = false;
+  bool _showEmailSuffix = false;
+  bool _showPasswordSuffix = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _emailController.addListener(() {
+      final hasText = _emailController.text.isNotEmpty;
+      if (hasText != _showEmailSuffix) {
+        setState(() {
+          _showEmailSuffix = hasText;
+        });
+      }
+    });
+
+    _passwordController.addListener(() {
+      final hasText = _passwordController.text.isNotEmpty;
+      if (hasText != _showPasswordSuffix) {
+        setState(() {
+          _showPasswordSuffix = hasText;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -49,10 +74,12 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
       hintText: 'User Name or Email',
       controller: _emailController,
       validator: AppValidation.checkText,
-      suffixIcon: IconButton(
-        icon: SvgPicture.asset(AppAssets.cutIcon, height: 20, width: 20),
-        onPressed: () => _emailController.clear(),
-      ),
+      suffixIcon: _showEmailSuffix
+          ? IconButton(
+              icon: SvgPicture.asset(AppAssets.cutIcon, height: 20, width: 20),
+              onPressed: () => _emailController.clear(),
+            )
+          : null,
     );
   }
 
@@ -62,17 +89,19 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
       controller: _passwordController,
       obscureText: _obscurePassword,
       validator: AppValidation.checkText,
-      suffixIcon: IconButton(
-        icon: Icon(
-          _obscurePassword ? Icons.visibility_off : Icons.visibility,
-          color: Colors.grey,
-        ),
-        onPressed: () {
-          setState(() {
-            _obscurePassword = !_obscurePassword;
-          });
-        },
-      ),
+      suffixIcon: _showPasswordSuffix
+          ? IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                color: Colors.grey,
+              ),
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+            )
+          : null,
     );
   }
 

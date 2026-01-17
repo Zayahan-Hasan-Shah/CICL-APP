@@ -39,18 +39,18 @@ class ClaimDetailWidgetSection1 extends StatelessWidget {
           ),
           SizedBox(height: 1.h),
           CustomText(title: empno, weight: FontWeight.bold, fontSize: 16.sp),
-          Divider(color: AppColors.buttonColor1.withAlpha(77), height: 2.h),
-          CustomText(
-            title: 'Company Name',
-            weight: FontWeight.w400,
-            fontSize: 16.sp,
-          ),
-          SizedBox(height: 1.h),
-          CustomText(
-            title: 'Century Insurance Company Ltd',
-            weight: FontWeight.bold,
-            fontSize: 16.sp,
-          ),
+          // Divider(color: AppColors.buttonColor1.withAlpha(77), height: 2.h),
+          // CustomText(
+          //   title: 'Company Name',
+          //   weight: FontWeight.w400,
+          //   fontSize: 16.sp,
+          // ),
+          // SizedBox(height: 1.h),
+          // CustomText(
+          //   title: 'Century Insurance Company Ltd',
+          //   weight: FontWeight.bold,
+          //   fontSize: 16.sp,
+          // ),
         ],
       ),
     );

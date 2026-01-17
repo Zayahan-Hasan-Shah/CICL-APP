@@ -5,7 +5,6 @@ import 'package:cicl_app/src/models/claim_model.dart/add_claim_model.dart';
 import 'package:cicl_app/src/states/claim_state/add_claim_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
-import 'dart:developer';
 
 class AddClaimController extends StateNotifier<AddClaimState> {
   AddClaimController() : super(AddClaimState());
@@ -39,17 +38,8 @@ class AddClaimController extends StateNotifier<AddClaimState> {
         }
       }
 
-      log('AddClaim Request');
-      log('API: $uri');
-      log('Headers: ${request.headers}');
-      log('Fields: ${jsonEncode(request.fields)}');
-
       final response = await request.send();
       final responseBody = await http.Response.fromStream(response);
-
-      log("Response status: ${response.statusCode}");
-      log("Response body: ${responseBody.body}");
-
       if (response.statusCode == 200) {
         final jsonBody = json.decode(responseBody.body);
         if (jsonBody["code"] == 200) {

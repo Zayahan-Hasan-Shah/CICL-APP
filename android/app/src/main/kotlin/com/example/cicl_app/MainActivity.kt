@@ -1,4 +1,4 @@
-package com.example.cicl_app
+package app.cicl.centralhealthcare
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine

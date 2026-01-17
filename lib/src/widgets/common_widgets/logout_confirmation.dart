@@ -47,3 +47,37 @@ Future<void> showLogoutConfirmationDialog(BuildContext context) async {
     },
   );
 }
+
+Future<void> showSessionExpiredDialog(BuildContext context) async {
+  final logoutService = LogoutService(StorageService());
+
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: const CustomText(
+          title: 'Session Expired',
+          color: Colors.black87,
+          weight: FontWeight.bold,
+        ),
+        content: const CustomText(
+          title: 'Your session has expired. Please login again to continue.',
+          color: Colors.black87,
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: CustomText(
+              title: 'OK',
+              color: AppColors.greenColor,
+            ),
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              logoutService.logout(context);
+            },
+          ),
+        ],
+      );
+    },
+  );
+}

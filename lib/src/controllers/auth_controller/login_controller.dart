@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'package:cicl_app/src/controllers/exception_controller/exception_controller.dart';
 import 'package:cicl_app/src/core/constants/api_url.dart';
@@ -35,9 +34,6 @@ class AuthController extends StateNotifier<AuthState> {
         },
         body: jsonEncode({"username": username, "password": password}),
       );
-
-      log("Auth Response");
-      log("response body : ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -87,11 +83,9 @@ class AuthController extends StateNotifier<AuthState> {
         state = AuthError("Invalid credentials. Please try again.");
       }
     } catch (e) {
-      log("MAIN ERROR : $e");
       if (e is NetworkException) {
         state = AuthError(e.message);
       } else {
-        log("ERROR : $e");
         state = AuthError("An unexpected error occurred. Please try again.");
       }
     }
@@ -100,10 +94,6 @@ class AuthController extends StateNotifier<AuthState> {
 
   Future<UserModel?> _performLoginApi(String username, String password) async {
     try {
-      log("Request");
-      log("API : ${ApiUrl.loginUrl}");
-      log("body : $username $password");
-
       final response = await http.post(
         Uri.parse(ApiUrl.loginUrl),
         headers: {
@@ -112,9 +102,6 @@ class AuthController extends StateNotifier<AuthState> {
         },
         body: jsonEncode({"username": username, "password": password}),
       );
-
-      log("response : ${response.body}");
-      log("status : ${response.statusCode}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -127,7 +114,7 @@ class AuthController extends StateNotifier<AuthState> {
       }
     } on SocketException catch (_) {
       throw NetworkException(
-        "No Internet connection. Please check your network.",
+        "No Internet connection. Please check your network.", 
       );
     } on TimeoutException catch (_) {
       throw NetworkException("The request timed out. Please try again.");
@@ -136,7 +123,6 @@ class AuthController extends StateNotifier<AuthState> {
     } on HttpException catch (_) {
       throw NetworkException("Server returned an invalid response.");
     } catch (e) {
-      log("_performLoginApi ERROR: $e");
       throw UnexpectedException(
         "An unexpected error occurred. Please try again. ($e)",
       );

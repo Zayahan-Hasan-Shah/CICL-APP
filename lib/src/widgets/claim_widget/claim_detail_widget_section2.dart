@@ -3,6 +3,7 @@ import 'package:cicl_app/src/core/utils/global.dart';
 import 'package:cicl_app/src/core/validations/app_validation.dart';
 import 'package:cicl_app/src/widgets/common_widgets/custom_text.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
 
 class ClaimDetailWidgetSection2 extends StatelessWidget {
@@ -19,7 +20,7 @@ class ClaimDetailWidgetSection2 extends StatelessWidget {
   final String empno;
   final String patientName;
   final String pateintCNIC;
-  
+
   const ClaimDetailWidgetSection2({
     super.key,
     required this.billNumber,
@@ -39,15 +40,26 @@ class ClaimDetailWidgetSection2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String formatDate(String? dateStr) {
+      if (dateStr == null || dateStr.isEmpty) return "N/A";
+      try {
+        final date = DateTime.parse(dateStr);
+        return DateFormat('dd MMM, yyyy').format(date);
+      } catch (e) {
+        return "N/A";
+      }
+    }
+
     final details = {
-      "Bill Date": billDate.isEmpty ? "" : billDate,
+      "Bill Date": billDate.isEmpty
+          ? ""
+          : DateFormat('dd MMM, yyyy').format(DateTime.parse(billDate)),
       "Employee Number": empno.isEmpty ? "" : empno,
       "Amount Claimed": AppValidation().formatAmount(approveAmount),
       "Amount Deducted": AppValidation().formatAmount(deductAmount),
       "Patient Name": patientName.isEmpty ? "" : patientName.toTitleCase(),
-      "Admission Date": admitdt ?? "N/A",
-      "Discharge Date": dischargdt ?? "N/A",
-
+      "Admission Date": formatDate(admitdt),
+      "Discharge Date": formatDate(dischargdt),
     };
     return Container(
       width: double.infinity,

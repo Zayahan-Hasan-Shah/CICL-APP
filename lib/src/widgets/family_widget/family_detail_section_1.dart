@@ -6,7 +6,12 @@ import 'package:sizer/sizer.dart';
 
 class FamilyDetailSection1 extends StatelessWidget {
   final String name;
-  const FamilyDetailSection1({super.key, required this.name});
+  final String clientName;
+  const FamilyDetailSection1({
+    super.key,
+    required this.name,
+    required this.clientName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +30,11 @@ class FamilyDetailSection1 extends StatelessWidget {
             fontSize: 16.sp,
           ),
           SizedBox(height: 1.h),
-          CustomText(title: name.toTitleCase(), weight: FontWeight.bold, fontSize: 16.sp),
+          CustomText(
+            title: name.toTitleCase(),
+            weight: FontWeight.bold,
+            fontSize: 16.sp,
+          ),
           Divider(color: AppColors.buttonColor1.withAlpha(77), height: 2.h),
           CustomText(
             title: 'Company Name',
@@ -34,9 +43,10 @@ class FamilyDetailSection1 extends StatelessWidget {
           ),
           SizedBox(height: 1.h),
           CustomText(
-            title: 'Century Insurance Company Ltd',
+            title: clientName.toTitleCase(),
             weight: FontWeight.bold,
             fontSize: 16.sp,
+            maxLines: 3,
           ),
         ],
       ),

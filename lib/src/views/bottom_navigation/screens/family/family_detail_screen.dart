@@ -10,6 +10,7 @@ class FamilyDetailScreen extends StatelessWidget {
   final String name;
   final String relation;
   final String gender;
+  final String clientName;
   final String cnicBform;
   final String dateOfBirth;
   const FamilyDetailScreen({
@@ -19,6 +20,7 @@ class FamilyDetailScreen extends StatelessWidget {
     required this.gender,
     required this.cnicBform,
     required this.dateOfBirth,
+    required this.clientName,
   });
 
   @override
@@ -45,7 +47,7 @@ class FamilyDetailScreen extends StatelessWidget {
         padding: EdgeInsetsGeometry.all(4.h),
         child: Column(
           children: [
-            FamilyDetailSection1(name: name),
+            FamilyDetailSection1(name: name, clientName: clientName),
             SizedBox(height: 3.h),
             FamilyDetailSection2(
               cnicBform: cnicBform,

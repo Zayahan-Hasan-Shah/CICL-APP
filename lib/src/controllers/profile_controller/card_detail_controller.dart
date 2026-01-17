@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/models/profile_model/card_detail_model.dart';
@@ -14,6 +16,9 @@ class CardDetailsController extends StateNotifier<CardDetailsState> {
     try {
       final token = await StorageService().getAccessToken();
       final url = Uri.parse(ApiUrl.cardDetailUrl);
+      log("Request");
+      log("API : ${ApiUrl.cardDetailUrl}");
+      log("token : $token");
       final response = await http.post(
         url,
         headers: {
@@ -22,6 +27,8 @@ class CardDetailsController extends StateNotifier<CardDetailsState> {
           "User-Agent": "CICL-Mobile-App/1.0",
         },
       );
+      log("response : ${response.body}");
+      log("status : ${response.statusCode}");
 
       if (response.statusCode == 200) {
         final result = cardDetailsResponseFromJson(response.body);
