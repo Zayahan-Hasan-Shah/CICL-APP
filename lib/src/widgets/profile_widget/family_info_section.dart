@@ -46,7 +46,7 @@ class FamilyInfoSection extends StatelessWidget {
           children: [
             _cell(data.familyMembers[i].name),
             SizedBox(width: 1, child: ColoredBox(color: AppColors.buttonColor1)),
-            _cell("${_calculateAge(data.familyMembers[i].dateOfBirth)}", align: TextAlign.center),
+            _cell("${data.familyMembers[i].age}", align: TextAlign.center),
           ],
         ),
         if (i != data.familyMembers.length - 1)
@@ -80,17 +80,17 @@ class FamilyInfoSection extends StatelessWidget {
         ),
       );
 
-  int _calculateAge(String dob) {
-    try {
-      final birthDate = DateTime.parse(dob);
-      final today = DateTime.now();
-      int age = today.year - birthDate.year;
-      if (today.month < birthDate.month || (today.month == birthDate.month && today.day < birthDate.day)) {
-        age--;
-      }
-      return age;
-    } catch (_) {
-      return 0;
-    }
-  }
+  // int _calculateAge(String dob) {
+  //   try {
+  //     final birthDate = DateTime.parse(dob);
+  //     final today = DateTime.now();
+  //     int age = today.year - birthDate.year;
+  //     if (today.month < birthDate.month || (today.month == birthDate.month && today.day < birthDate.day)) {
+  //       age--;
+  //     }
+  //     return age;
+  //   } catch (_) {
+  //     return 0;
+  //   }
+  // }
 }

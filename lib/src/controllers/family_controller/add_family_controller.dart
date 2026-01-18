@@ -6,7 +6,6 @@ import 'package:cicl_app/src/models/family_model/add_family_model.dart';
 import 'package:cicl_app/src/states/family_state/add_family_state.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
-// import 'package:cicl_app/src/controllers/network_controller/optimized_http_client.dart';
 
 class AddFamilyController extends StateNotifier<AddFamilyState> {
   AddFamilyController() : super(AddFamilyState());

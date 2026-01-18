@@ -102,6 +102,7 @@ class FamilyMember {
   final String relation;
   final String gender;
   final String cnic;
+  final int age;
 
   FamilyMember({
     required this.branchCode,
@@ -112,6 +113,7 @@ class FamilyMember {
     required this.relation,
     required this.gender,
     required this.cnic,
+    required this.age,
   });
 
   factory FamilyMember.fromJson(Map<String, dynamic> json) => FamilyMember(
@@ -123,5 +125,6 @@ class FamilyMember {
     relation: json["relation"],
     gender: json["gender"],
     cnic: json["cnic"],
+    age: json["age"],
   );
 }
