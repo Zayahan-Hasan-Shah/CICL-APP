@@ -318,7 +318,10 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
         actions: [
           CustomButton(
             onPressed: () {
+              // Close dialog
               Navigator.pop(context);
+              // Navigate back to family list screen
+              context.pop();
             },
             backgroundColor: AppColors.buttonColor1,
             fontSize: 18.sp,
