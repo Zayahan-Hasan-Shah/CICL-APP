@@ -82,15 +82,12 @@ class _BoardingScreenState extends State<BoardingScreen> {
             fontSize: 20.sp,
             color: Colors.black,
           ),
-          SizedBox(height: 0.5.h),
           CustomText(
-            title:
-                "Century create customer\noriented smart phone application to address to your needs and get updated on all your Health Insurance. Takaful related concerns.",
-            weight: FontWeight.normal,
+            title: "Health Application",
+            weight: FontWeight.w800,
             fontStyle: FontStyle.normal,
-            fontSize: 15.sp,
+            fontSize: 20.sp,
             color: Colors.black,
-            alignText: TextAlign.center,
           ),
         ],
       ),

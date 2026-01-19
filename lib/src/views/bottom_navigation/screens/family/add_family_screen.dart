@@ -37,6 +37,7 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
   String? relationSeleted;
   String? genderSeleted;
   List<PlatformFile> uploadedFiles = [];
+  int _formResetCounter = 0;
 
   @override
   void initState() {
@@ -53,6 +54,7 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
       relationSeleted = null;
       genderSeleted = null;
       uploadedFiles = [];
+      _formResetCounter++;
     });
   }
 
@@ -130,6 +132,8 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
                   buildTextField(
                     _cnicCtrl,
                     'CNIC/B-Form',
+                    // CNIC/B-Form is optional; validator only checks format
+                    // when user has entered some value.
                     isValidate: true,
                     val: AppValidation.cnicValidator,
                     isCNIC: true,
@@ -162,6 +166,8 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
                   headingText("Attachment File", false),
                   SizedBox(height: 1.h),
                   AttachmentUploader(
+                    key: ValueKey(_formResetCounter),
+                    initialValue: uploadedFiles,
                     onFilesChanged: (files) {
                       setState(() {
                         uploadedFiles = files;
@@ -286,7 +292,10 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
                 cnic: _cnicCtrl.text.trim(),
                 relation: relationSeleted!,
                 gender: genderSeleted!,
-                attachments: File(uploadedFiles.first.path!),
+                attachments: uploadedFiles
+                    .where((f) => f.path != null)
+                    .map((f) => File(f.path!))
+                    .toList(),
               );
 
               ref.read(addFamilyProvider.notifier).addFamilyMember(model);

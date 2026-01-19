@@ -39,9 +39,14 @@ class AppValidation {
   }
 
   static String? cnicValidator(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'CNIC/B-Form is required';
-    } else if (!RegExp(r'^\d{5}-\d{7}-\d{1}$').hasMatch(value.trim())) {
+    final trimmed = value?.trim() ?? '';
+
+    // CNIC/B-Form is optional. Only validate if user has entered something.
+    if (trimmed.isEmpty) {
+      return null;
+    }
+
+    if (!RegExp(r'^\d{5}-\d{7}-\d{1}$').hasMatch(trimmed)) {
       return 'Enter CNIC in XXXXX-XXXXXXX-X format';
     }
     return null;

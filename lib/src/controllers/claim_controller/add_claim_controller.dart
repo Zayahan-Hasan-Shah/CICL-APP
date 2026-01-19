@@ -48,9 +48,30 @@ class AddClaimController extends StateNotifier<AddClaimState> {
             message: jsonBody["message"] ?? "Claim added successfully",
           );
         } else {
+          final rawErrors = jsonBody["errors"];
+          String errorMessage = "Unknown error";
+
+          if (rawErrors is List && rawErrors.isNotEmpty) {
+            errorMessage = rawErrors.join(", ");
+          } else if (rawErrors is Map) {
+            final parts = <String>[];
+            rawErrors.forEach((key, value) {
+              if (value is List) {
+                parts.add("$key: ${value.join(', ')}");
+              } else {
+                parts.add("$key: $value");
+              }
+            });
+            if (parts.isNotEmpty) {
+              errorMessage = parts.join("\n");
+            }
+          } else if (rawErrors is String && rawErrors.isNotEmpty) {
+            errorMessage = rawErrors;
+          }
+
           state = state.copyWith(
             loading: false,
-            error: jsonBody["errors"]?.toString() ?? "Unknown error",
+            error: errorMessage,
           );
         }
       } else {

@@ -43,6 +43,7 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
   List<String> _patientNames = []; // Add this line
 
   bool _declarationAccepted = false;
+  int _formResetCounter = 0;
 
   // Add restriction map for benefit types
   final Map<String, List<String>> _benefitTypeRestrictions = {
@@ -148,6 +149,8 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
       _patients.clear();
       _benefitTypes.clear();
       _uploadedFilesList.clear();
+
+      _formResetCounter++;
 
       // Add a new claim form
       _addNewClaimForm();
@@ -396,6 +399,8 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
                       headingText("Attachments", true),
                       SizedBox(height: 1.h),
                       AttachmentUploader(
+                        key: ValueKey('attachment_${_formResetCounter}_$index'),
+                        initialValue: _uploadedFilesList[index],
                         onFilesChanged: (files) {
                           setState(() {
                             _uploadedFilesList[index] = files;
