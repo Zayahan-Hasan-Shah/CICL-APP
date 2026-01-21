@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
@@ -21,11 +20,6 @@ class AddFamilyController extends StateNotifier<AddFamilyState> {
       final formFields = model.toFormData().map(
         (k, v) => MapEntry(k, v.toString()),
       );
-      log('AddFamily endpoint: ${uri.toString()}');
-      log('AddFamily request fields:');
-      formFields.forEach((key, value) {
-        log('  $key = $value');
-      });
 
       final request = http.MultipartRequest("POST", uri)
         ..headers.addAll({
@@ -37,7 +31,6 @@ class AddFamilyController extends StateNotifier<AddFamilyState> {
       for (int i = 0; i < model.attachments.length; i++) {
         final file = model.attachments[i];
         final fileName = file.path.split("/").last;
-        log('AddFamily attachment_file[]: $fileName');
         request.files.add(
           await http.MultipartFile.fromPath(
             "attachment_file[]",
@@ -50,14 +43,8 @@ class AddFamilyController extends StateNotifier<AddFamilyState> {
       final response = await request.send();
       final responseBody = await http.Response.fromStream(response);
 
-      // Debug logs to inspect API behaviour
-      log('AddFamily API status: ${response.statusCode}');
-      log('AddFamily raw body: ${responseBody.body}');
-      log('AddFamily raw body: ${responseBody.body}');
-
       if (response.statusCode == 200) {
         final jsonBody = json.decode(responseBody.body);
-        log('AddFamily parsed jsonBody: $jsonBody');
 
         if (jsonBody["code"] == 200) {
           state = state.copyWith(
@@ -66,11 +53,9 @@ class AddFamilyController extends StateNotifier<AddFamilyState> {
           );
         } else {
           final rawErrors = jsonBody["errors"];
-          log('AddFamily errors field: $rawErrors');
           String errorMessage = "Unknown error";
 
           if (rawErrors is List && rawErrors.isNotEmpty) {
-            log('ERROR LIST: $rawErrors');
             errorMessage = rawErrors.join(", ");
           } else if (rawErrors is Map) {
             // Flatten map of field -> [messages]
@@ -83,12 +68,10 @@ class AddFamilyController extends StateNotifier<AddFamilyState> {
               }
             });
             if (parts.isNotEmpty) {
-              log("ERROR PARTS: $parts");
               errorMessage = parts.join("\n");
             }
           } else if (rawErrors is String && rawErrors.isNotEmpty) {
             errorMessage = rawErrors;
-            log(" ERROR STRING: $errorMessage");
           }
 
           state = state.copyWith(
