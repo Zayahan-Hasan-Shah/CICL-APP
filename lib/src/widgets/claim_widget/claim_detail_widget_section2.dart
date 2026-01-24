@@ -55,11 +55,12 @@ class ClaimDetailWidgetSection2 extends StatelessWidget {
           ? ""
           : DateFormat('dd MMM, yyyy').format(DateTime.parse(billDate)),
       "Employee Number": empno.isEmpty ? "" : empno,
-      "Total Claimed Amount": AppValidation().formatAmount(
+      "Benefit Type": serviceName,
+      "Amount Claimed": AppValidation().formatAmount(
         approveAmount + deductAmount,
       ),
-      "Amount Claimed": AppValidation().formatAmount(approveAmount),
       "Amount Deducted": AppValidation().formatAmount(deductAmount),
+      "Amount Approved": AppValidation().formatAmount(approveAmount),
       "Patient Name": patientName.isEmpty ? "" : patientName.toTitleCase(),
       "Admission Date": formatDate(admitdt),
       "Discharge Date": formatDate(dischargdt),

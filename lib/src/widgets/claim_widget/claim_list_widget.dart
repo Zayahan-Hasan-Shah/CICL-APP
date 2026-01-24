@@ -14,6 +14,7 @@ class ClaimListWidget extends StatelessWidget {
   final String reportDate;
   final int deductAmount;
   final int approveAmount;
+  final String serviceName;
 
   const ClaimListWidget({
     super.key,
@@ -25,6 +26,7 @@ class ClaimListWidget extends StatelessWidget {
     required this.reportDate,
     required this.deductAmount,
     required this.approveAmount,
+    required this.serviceName,
   });
 
   @override
@@ -48,9 +50,11 @@ class ClaimListWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildText("Claim#$clmsEqnos", fontSize: 18.sp),
+            _buildText(serviceName, fontSize: 16.sp),
             _buildText(
-                DateFormat('dd MMM, yyyy').format(DateTime.parse(reportDate)),
-                weight: FontWeight.w400),
+              DateFormat('dd MMM, yyyy').format(DateTime.parse(reportDate)),
+              weight: FontWeight.w400,
+            ),
             _buildAmount(AppValidation().formatAmount(billAmount)),
           ],
         ),
@@ -70,8 +74,9 @@ class ClaimListWidget extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 2.5.w, vertical: 0.5.h),
       decoration: BoxDecoration(
-          color: AppColors.buttonColor1,
-          borderRadius: BorderRadius.circular(16)),
+        color: AppColors.buttonColor1,
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: CustomText(
         title: 'Rs.$billAmot',
         fontSize: 16.sp,
@@ -79,5 +84,4 @@ class ClaimListWidget extends StatelessWidget {
       ),
     );
   }
-
 }

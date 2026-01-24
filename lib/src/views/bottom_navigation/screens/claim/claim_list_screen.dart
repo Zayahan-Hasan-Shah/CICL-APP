@@ -39,10 +39,12 @@ class _ClaimListScreenState extends ConsumerState<ClaimListScreen> {
     _searchController.addListener(() {
       setState(() {}); // rebuild UI when search text changes
     });
-    
+
     // Fetch claims when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(claimControllerProvider.notifier).fetchClaims(page: 0, pageSize: 10);
+      ref
+          .read(claimControllerProvider.notifier)
+          .fetchClaims(page: 0, pageSize: 10);
     });
   }
 
@@ -76,12 +78,17 @@ class _ClaimListScreenState extends ConsumerState<ClaimListScreen> {
       final query = _searchController.text.toLowerCase();
 
       return claim.srvcode.toString().toLowerCase().contains(query) ||
-          claim.clmseqnos.toLowerCase().contains(query) ||
-          claim.cuserid.toLowerCase().contains(query) ||
-          claim.billamount.toString().toLowerCase().contains(query) ||
-          claim.reportdate.toLowerCase().contains(query) ||
-          claim.deductamount.toString().toLowerCase().contains(query) ||
-          claim.approvamt.toString().toLowerCase().contains(query);
+              claim.clmseqnos.toLowerCase().contains(query) ||
+              claim.cuserid.toLowerCase().contains(query) ||
+              claim.billamount.toString().toLowerCase().contains(query) ||
+              claim.reportdate.toLowerCase().contains(query) ||
+              claim.deductamount.toString().toLowerCase().contains(query) ||
+              claim.approvamt.toString().toLowerCase().contains(query) ||
+              claim.srvcode == 70005
+          ? 'Hospitalization'.toLowerCase().contains(query)
+          : claim.srvcode == 70003
+          ? 'Dental Treatment'.toLowerCase().contains(query)
+          : 'Out Patient Married'.toLowerCase().contains(query);
     }).toList();
 
     return Scaffold(
@@ -172,6 +179,11 @@ class _ClaimListScreenState extends ConsumerState<ClaimListScreen> {
                                     reportDate: claim.reportdate,
                                     deductAmount: claim.deductamount,
                                     approveAmount: claim.approvamt,
+                                    serviceName: claim.srvcode == 70005
+                                        ? 'Hospitalization'
+                                        : claim.srvcode == 70003
+                                        ? 'Dental Treatment'
+                                        : 'Out Patient Married',
                                   ),
                                 );
                               },

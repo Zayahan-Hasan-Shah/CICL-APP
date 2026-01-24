@@ -30,10 +30,10 @@ class ClaimDetailController extends StateNotifier<ClaimDetailState> {
         final claimDetail = ClaimDetailResponse.fromJson(jsonData);
         state = ClaimDetailLoaded(claimDetail);
       } else {
-        state = ClaimDetailError("Failed: ${response.body}");
+        state = ClaimDetailError("Failed to load details");
       }
     } catch (e) {
-      state = ClaimDetailError(e.toString());
+      state = ClaimDetailError("Failed to load details");
     }
   }
 }
