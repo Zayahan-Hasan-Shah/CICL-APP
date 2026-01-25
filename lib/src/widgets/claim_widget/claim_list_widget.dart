@@ -47,14 +47,17 @@ class ClaimListWidget extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildText("Claim#$clmsEqnos", fontSize: 18.sp),
+            SizedBox(height: 0.5.h,),
             _buildText(serviceName, fontSize: 16.sp),
+            SizedBox(height: 0.5.h,),
             _buildText(
               DateFormat('dd MMM, yyyy').format(DateTime.parse(reportDate)),
               weight: FontWeight.w400,
             ),
+            SizedBox(height: 0.5.h,),
             _buildAmount(AppValidation().formatAmount(billAmount)),
           ],
         ),
@@ -67,6 +70,7 @@ class ClaimListWidget extends StatelessWidget {
       title: text,
       fontSize: fontSize ?? 16.sp,
       weight: weight ?? FontWeight.w600,
+      alignText: TextAlign.center,
     );
   }
 

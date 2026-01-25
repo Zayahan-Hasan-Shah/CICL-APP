@@ -78,17 +78,13 @@ class _ClaimListScreenState extends ConsumerState<ClaimListScreen> {
       final query = _searchController.text.toLowerCase();
 
       return claim.srvcode.toString().toLowerCase().contains(query) ||
-              claim.clmseqnos.toLowerCase().contains(query) ||
-              claim.cuserid.toLowerCase().contains(query) ||
-              claim.billamount.toString().toLowerCase().contains(query) ||
-              claim.reportdate.toLowerCase().contains(query) ||
-              claim.deductamount.toString().toLowerCase().contains(query) ||
-              claim.approvamt.toString().toLowerCase().contains(query) ||
-              claim.srvcode == 70005
-          ? 'Hospitalization'.toLowerCase().contains(query)
-          : claim.srvcode == 70003
-          ? 'Dental Treatment'.toLowerCase().contains(query)
-          : 'Out Patient Married'.toLowerCase().contains(query);
+          claim.clmseqnos.toLowerCase().contains(query) ||
+          claim.cuserid.toLowerCase().contains(query) ||
+          claim.billamount.toString().toLowerCase().contains(query) ||
+          claim.reportdate.toLowerCase().contains(query) ||
+          claim.deductamount.toString().toLowerCase().contains(query) ||
+          claim.approvamt.toString().toLowerCase().contains(query) ||
+          claim.serviceName.toLowerCase().contains(query);
     }).toList();
 
     return Scaffold(
@@ -109,88 +105,92 @@ class _ClaimListScreenState extends ConsumerState<ClaimListScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Search + Calendar
-            ClaimSearchBar(
-              controller: _searchController,
-              onDateRangeSelected: (start, end) {
-                // you can add date filters here later
-              },
-            ),
-            SizedBox(height: 0.1.h),
-            ClaimEntriesInfo(
-              start: filteredClaims.isEmpty ? 0 : (pageNo * pagePerClaim) + 1,
-              // end: filteredClaims.length,
-              total: state.total,
-            ),
-            SizedBox(height: 1.h),
-            // Claim list
-            Expanded(
-              child: state.loading && state.claims.isEmpty
-                  ? const Center(child: LoadingIndicator())
-                  : state.error != null
-                  ? Center(
-                      child: CustomText(title: "You don't have any claims yet"),
-                    )
-                  : Padding(
-                      padding: EdgeInsets.all(0.5.h),
-                      child: state.claims.isEmpty
-                          ? Center(
-                              child: CustomText(
-                                title: "You don't have any claims yet",
-                              ),
-                            )
-                          : GridView.builder(
-                              controller: _scrollController,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 4,
-                                    mainAxisSpacing: 4,
-                                  ),
-                              itemCount: filteredClaims.length + 1,
-                              itemBuilder: (context, index) {
-                                if (index == filteredClaims.length) {
-                                  // Loader at bottom while fetching more
-                                  return state.loading
-                                      ? const Center(child: LoadingIndicator())
-                                      : const SizedBox();
-                                }
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Column(
+            children: [
+              // Search + Calendar
+              ClaimSearchBar(
+                controller: _searchController,
+                onDateRangeSelected: (start, end) {
+                  // you can add date filters here later
+                },
+              ),
+              SizedBox(height: 0.1.h),
+              ClaimEntriesInfo(
+                start: filteredClaims.isEmpty ? 0 : (pageNo * pagePerClaim) + 1,
+                // end: filteredClaims.length,
+                total: state.total,
+              ),
+              SizedBox(height: 1.h),
+              // Claim list
+              Expanded(
+                child: state.loading && state.claims.isEmpty
+                    ? const Center(child: LoadingIndicator())
+                    : state.error != null
+                    ? Center(
+                        child: CustomText(
+                          title: "You don't have any claims yet",
+                        ),
+                      )
+                    : Padding(
+                        padding: EdgeInsets.all(0.5.h),
+                        child: state.claims.isEmpty
+                            ? Center(
+                                child: CustomText(
+                                  title: "You don't have any claims yet",
+                                ),
+                              )
+                            : GridView.builder(
+                                controller: _scrollController,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 4,
+                                      mainAxisSpacing: 4,
+                                    ),
+                                itemCount: filteredClaims.length + 1,
+                                itemBuilder: (context, index) {
+                                  if (index == filteredClaims.length) {
+                                    // Loader at bottom while fetching more
+                                    return state.loading
+                                        ? const Center(
+                                            child: LoadingIndicator(),
+                                          )
+                                        : const SizedBox();
+                                  }
 
-                                final claim = filteredClaims[index];
-                                return Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 2.h,
-                                    vertical: 1.h,
-                                  ),
-                                  child: ClaimListWidget(
-                                    onTap: () {
-                                      context.push(
-                                        '/claimdetailscreen',
-                                        extra: claim
-                                            .clmseqnos, // pass the claim number / id
-                                      );
-                                    },
-                                    srvCode: claim.srvcode,
-                                    clmsEqnos: claim.clmseqnos,
-                                    cuserId: claim.cuserid,
-                                    billAmount: claim.billamount,
-                                    reportDate: claim.reportdate,
-                                    deductAmount: claim.deductamount,
-                                    approveAmount: claim.approvamt,
-                                    serviceName: claim.srvcode == 70005
-                                        ? 'Hospitalization'
-                                        : claim.srvcode == 70003
-                                        ? 'Dental Treatment'
-                                        : 'Out Patient Married',
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-            ),
-          ],
+                                  final claim = filteredClaims[index];
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 2.h,
+                                      vertical: 1.h,
+                                    ),
+                                    child: ClaimListWidget(
+                                      onTap: () {
+                                        context.push(
+                                          '/claimdetailscreen',
+                                          extra: claim
+                                              .clmseqnos, // pass the claim number / id
+                                        );
+                                      },
+                                      srvCode: claim.srvcode,
+                                      clmsEqnos: claim.clmseqnos,
+                                      cuserId: claim.cuserid,
+                                      billAmount: claim.billamount,
+                                      reportDate: claim.reportdate,
+                                      deductAmount: claim.deductamount,
+                                      approveAmount: claim.approvamt,
+                                      serviceName: claim.serviceName,
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );

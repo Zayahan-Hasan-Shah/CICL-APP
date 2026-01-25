@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/core/validations/app_validation.dart';
@@ -22,6 +23,8 @@ class ClaimController extends StateNotifier<ClaimState> {
       final token = await StorageService().getAccessToken();
       final url = Uri.parse(ApiUrl.getClaimUrl);
 
+      log('Fetching claims from $url with page: $page, pageSize: $pageSize');
+
       final bodySent = {
         "startDate": startDate,
         "endDate": AppValidation().getCurrentDate(),
@@ -39,6 +42,9 @@ class ClaimController extends StateNotifier<ClaimState> {
         },
       );
 
+      log('Response status: ${response.statusCode}');
+      log('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final jsonBody = json.decode(response.body);
         final data = jsonBody["data"];
@@ -50,13 +56,11 @@ class ClaimController extends StateNotifier<ClaimState> {
 
         final updatedClaims = page == 0
             ? newClaims
-            : [
-                ...state.claims,
-                ...newClaims,
-              ];
+            : [...state.claims, ...newClaims];
 
-        final claimSeqNos =
-            updatedClaims.map((e) => e.clmseqnos.toString()).toList();
+        final claimSeqNos = updatedClaims
+            .map((e) => e.clmseqnos.toString())
+            .toList();
         await StorageService().saveClaimSeqNos(claimSeqNos);
 
         state = state.copyWith(
