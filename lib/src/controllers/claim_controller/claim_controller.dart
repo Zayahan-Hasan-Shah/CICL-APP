@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/core/validations/app_validation.dart';
@@ -23,8 +22,6 @@ class ClaimController extends StateNotifier<ClaimState> {
       final token = await StorageService().getAccessToken();
       final url = Uri.parse(ApiUrl.getClaimUrl);
 
-      log('Fetching claims from $url with page: $page, pageSize: $pageSize');
-
       final bodySent = {
         "startDate": startDate,
         "endDate": AppValidation().getCurrentDate(),
@@ -41,9 +38,6 @@ class ClaimController extends StateNotifier<ClaimState> {
           "User-Agent": "CICL-Mobile-App/1.0",
         },
       );
-
-      log('Response status: ${response.statusCode}');
-      log('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonBody = json.decode(response.body);
