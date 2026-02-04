@@ -439,56 +439,58 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 1.h, vertical: 2.h),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // ---- Declaration + Checkbox ----
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 2.h),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: Checkbox(
-                      value: _declarationAccepted,
-                      onChanged: (val) {
-                        setState(() => _declarationAccepted = val ?? false);
-                      },
-                      activeColor: AppColors.buttonColor1,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      "I hereby certify that the information provided is correct to the best of my knowledge and that the medical expense claims submitted are valid under the company’s rules.",
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: Colors.grey[800],
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 1.h, vertical: 2.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // ---- Declaration + Checkbox ----
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 2.h),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Checkbox(
+                        value: _declarationAccepted,
+                        onChanged: (val) {
+                          setState(() => _declarationAccepted = val ?? false);
+                        },
+                        activeColor: AppColors.buttonColor1,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        "I hereby certify that the information provided is correct to the best of my knowledge and that the medical expense claims submitted are valid under the company’s rules.",
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-
-            const SizedBox(height: 12),
-            CustomButton(
-              onPressed: (_declarationAccepted && !isLoading)
-                  ? _submitAllClaims
-                  : () {},
-              gradient: LinearGradient(
-                colors: (_declarationAccepted && !isLoading)
-                    ? [AppColors.buttonColor1, AppColors.buttonColor2]
-                    : [Colors.grey.shade400, Colors.grey.shade600],
+        
+              const SizedBox(height: 12),
+              CustomButton(
+                onPressed: (_declarationAccepted && !isLoading)
+                    ? _submitAllClaims
+                    : () {},
+                gradient: LinearGradient(
+                  colors: (_declarationAccepted && !isLoading)
+                      ? [AppColors.buttonColor1, AppColors.buttonColor2]
+                      : [Colors.grey.shade400, Colors.grey.shade600],
+                ),
+                width: 40.h,
+                text: isLoading ? 'Submitting...' : 'Submit Claims',
               ),
-              width: 40.h,
-              text: isLoading ? 'Submitting...' : 'Submit Claims',
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

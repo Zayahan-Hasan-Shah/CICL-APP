@@ -83,32 +83,34 @@ class _BottomNavigationState extends ConsumerState<BottomNavigation> {
       },
       child: Scaffold(
         body: _screens[currentIndex],
-        bottomNavigationBar: CustomBottomNavBar(
-          currentIndex: currentIndex,
-          onTap: (index) =>
-              ref.read(bottomNavigationProvider.notifier).setIndex(index),
-          items: [
-            BottomNavItem(
-              activeIcon: AppAssets.homeActiveIcon,
-              inactiveIcon: AppAssets.homeInacticeIcon,
-              label: 'Home',
-            ),
-            BottomNavItem(
-              activeIcon: AppAssets.familyActiveIcon,
-              inactiveIcon: AppAssets.familyInactiveIcon,
-              label: 'Family',
-            ),
-            BottomNavItem(
-              activeIcon: AppAssets.claimActiveIcon,
-              inactiveIcon: AppAssets.claimInactiveIcon,
-              label: 'Claim',
-            ),
-            BottomNavItem(
-              activeIcon: AppAssets.profileActiveIcon,
-              inactiveIcon: AppAssets.profielInActiveIcon,
-              label: 'Profile',
-            ),
-          ],
+        bottomNavigationBar: SafeArea(
+          child: CustomBottomNavBar(
+            currentIndex: currentIndex,
+            onTap: (index) =>
+                ref.read(bottomNavigationProvider.notifier).setIndex(index),
+            items: [
+              BottomNavItem(
+                activeIcon: AppAssets.homeActiveIcon,
+                inactiveIcon: AppAssets.homeInacticeIcon,
+                label: 'Home',
+              ),
+              BottomNavItem(
+                activeIcon: AppAssets.familyActiveIcon,
+                inactiveIcon: AppAssets.familyInactiveIcon,
+                label: 'Family',
+              ),
+              BottomNavItem(
+                activeIcon: AppAssets.claimActiveIcon,
+                inactiveIcon: AppAssets.claimInactiveIcon,
+                label: 'Claim',
+              ),
+              BottomNavItem(
+                activeIcon: AppAssets.profileActiveIcon,
+                inactiveIcon: AppAssets.profielInActiveIcon,
+                label: 'Profile',
+              ),
+            ],
+          ),
         ),
       ),
     );
