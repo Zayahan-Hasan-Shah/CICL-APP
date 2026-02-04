@@ -152,9 +152,12 @@ class AuthController extends StateNotifier<AuthState> {
         final claimProvider = ref.read(claimControllerProvider.notifier);
         final serviceProvider = ref.read(serviceControllerProvider.notifier);
 
-        unawaited(familyProvider.fetchFamilyMembers());
-        unawaited(claimProvider.fetchClaims(page: 0, pageSize: 10));
-        unawaited(serviceProvider.fetchService());
+        // Wait for all data to fetch before proceeding
+        await Future.wait([
+          familyProvider.fetchFamilyMembers(),
+          claimProvider.fetchClaims(page: 0, pageSize: 10),
+          serviceProvider.fetchService(),
+        ]);
 
         final familyState = ref.read(familyMemberControllerProvider);
         final familyNames = familyState.family;
