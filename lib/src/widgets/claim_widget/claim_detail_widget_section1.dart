@@ -7,10 +7,12 @@ import 'package:sizer/sizer.dart';
 class ClaimDetailWidgetSection1 extends StatelessWidget {
   final String name;
   final String empno;
+  final String totalApprovedAmount;
   const ClaimDetailWidgetSection1({
     super.key,
     required this.name,
     required this.empno,
+    required this.totalApprovedAmount,
   });
 
   @override
@@ -39,6 +41,19 @@ class ClaimDetailWidgetSection1 extends StatelessWidget {
           ),
           SizedBox(height: 1.h),
           CustomText(title: empno, weight: FontWeight.bold, fontSize: 16.sp),
+           Divider(color: AppColors.buttonColor1.withAlpha(77), height: 2.h),
+          SizedBox(height: 1.h),
+          CustomText(
+            title: 'Total Approved Amount',
+            weight: FontWeight.w400,
+            fontSize: 16.sp,
+          ),
+          SizedBox(height: 1.h),
+          CustomText(
+            title: 'Rs.$totalApprovedAmount',
+            weight: FontWeight.bold,
+            fontSize: 16.sp,
+          ),
           // Divider(color: AppColors.buttonColor1.withAlpha(77), height: 2.h),
           // CustomText(
           //   title: 'Company Name',
