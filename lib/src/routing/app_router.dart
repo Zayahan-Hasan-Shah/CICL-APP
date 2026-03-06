@@ -17,10 +17,14 @@ import 'package:cicl_app/src/views/laboratory/laboratory_list_screen.dart';
 import 'package:cicl_app/src/views/limit/claim_limit_screen.dart';
 import 'package:cicl_app/src/views/on_boarding/boarding_screen.dart';
 import 'package:cicl_app/src/views/on_boarding/splash_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
 class AppRouter {
   static final router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: RoutesNames.splasScreen,
     routes: [
       GoRoute(

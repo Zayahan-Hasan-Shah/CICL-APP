@@ -4,7 +4,7 @@ import 'package:sizer/sizer.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final bool outlined;
   final double? width;
   final Gradient? gradient;
@@ -17,7 +17,7 @@ class CustomButton extends StatelessWidget {
   const CustomButton({
     super.key,
     required this.text,
-    required this.onPressed,
+    this.onPressed,
     this.outlined = false,
     this.width,
     this.gradient,

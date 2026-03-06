@@ -17,9 +17,26 @@ class AddFamilyModel {
     required this.attachments,
   });
 
+  static const Map<String, String> _relationToCode = {
+    "Spouse": "S",
+    "Son": "B",
+    "Daughter": "G",
+    "Parent": "P",
+  };
+
+  static const Map<String, String> _genderToCode = {"Male": "M", "Female": "F"};
+
   Map<String, dynamic> toFormData() {
-    final relationCode = relation.isNotEmpty ? relation[0] : relation;
-    final genderCode = gender.isNotEmpty ? gender[0] : gender;
+    // final relationCode = relation.isNotEmpty ? relation[0] : relation;
+    // final genderCode = gender.isNotEmpty ? gender[0] : gender;
+
+    final relationCode =
+        _relationToCode[relation.trim()] ??
+        (relation.isNotEmpty ? relation[0].toUpperCase() : "");
+
+    final genderCode =
+        _genderToCode[gender.trim()] ??
+        (gender.isNotEmpty ? gender[0].toUpperCase() : "");
 
     return {
       "name": name,

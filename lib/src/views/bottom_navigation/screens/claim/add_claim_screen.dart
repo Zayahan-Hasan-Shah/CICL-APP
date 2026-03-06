@@ -206,18 +206,30 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
     }
 
     final storage = StorageService();
-    final marriedRaw = (await storage.getIsMarried()) ?? '';
-    final married = marriedRaw.trim().toUpperCase();
-
-    // Determine service code based on married flag from login API
-    final serviceCode =
-        (married == 'Y' || married == 'YES') ? '70005' : '70004';
-
     // employeeNo should always be the cardNumber saved at login
     final cardNumber = (await storage.getCardNumber()) ?? '';
 
     final claims = List.generate(_billNoControllers.length, (index) {
-      final isHospital = _benefitTypes[index] == "Hospital";
+      final benefitType = _benefitTypes[index];
+      final isHospital = benefitType == "Hospital";
+
+      // Map selected benefit type to correct service code
+      // Hospital      -> 20001 (HOSPITALIZATION)
+      // OPD           -> 70005 (OUT-PATIENT-MARRIED)
+      // Dental Treat. -> 70003 (DENTAL TREATMENT)
+      String serviceCode;
+      switch (benefitType) {
+        case "Hospital":
+          serviceCode = "20001";
+          break;
+        case "Dental Treatment":
+          serviceCode = "70003";
+          break;
+        case "OPD":
+        default:
+          serviceCode = "70005";
+          break;
+      }
 
       return AddClaimModel(
         items: [
@@ -609,33 +621,47 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
           // Create multiple claims
           final storage = StorageService();
 
-          storage.getIsMarried().then((marriedRaw) async {
-            final married = (marriedRaw ?? '').trim().toUpperCase();
-            final serviceCode =
-                (married == 'Y' || married == 'YES') ? '70005' : '70004';
-
-            final cardNumber = (await storage.getCardNumber()) ?? '';
+          storage.getCardNumber().then((cardNumberValue) async {
+            final cardNumber = (cardNumberValue ?? '').trim();
 
             final claims = List.generate(
               _billNoControllers.length,
-              (index) => AddClaimModel(
-                items: [
-                  ClaimItem(
-                    billNo: _billNoControllers[index].text.trim(),
-                    billDate: _billDateControllers[index].text.trim(),
-                    employeeNo: cardNumber,
-                    serviceCode: serviceCode,
-                    billAmount: _billAmountControllers[index].text.trim(),
-                    hospital: _hosLabClinDrControllers[index].text.trim(),
-                    admitDate: _admissionDateControllers[index].text.trim(),
-                    dischargeDate:
-                        _dischargeDateControllers[index].text.trim(),
-                    attachments: _uploadedFilesList[index]
-                        .map((f) => Attachment(File(f.path!)))
-                        .toList(),
-                  ),
-                ],
-              ),
+              (index) {
+                final benefitType = _benefitTypes[index];
+
+                String serviceCode;
+                switch (benefitType) {
+                  case "Hospital":
+                    serviceCode = "20001";
+                    break;
+                  case "Dental Treatment":
+                    serviceCode = "70003";
+                    break;
+                  case "OPD":
+                  default:
+                    serviceCode = "70005";
+                    break;
+                }
+
+                return AddClaimModel(
+                  items: [
+                    ClaimItem(
+                      billNo: _billNoControllers[index].text.trim(),
+                      billDate: _billDateControllers[index].text.trim(),
+                      employeeNo: cardNumber,
+                      serviceCode: serviceCode,
+                      billAmount: _billAmountControllers[index].text.trim(),
+                      hospital: _hosLabClinDrControllers[index].text.trim(),
+                      admitDate: _admissionDateControllers[index].text.trim(),
+                      dischargeDate:
+                          _dischargeDateControllers[index].text.trim(),
+                      attachments: _uploadedFilesList[index]
+                          .map((f) => Attachment(File(f.path!)))
+                          .toList(),
+                    ),
+                  ],
+                );
+              },
             );
 
             // Submit all claims

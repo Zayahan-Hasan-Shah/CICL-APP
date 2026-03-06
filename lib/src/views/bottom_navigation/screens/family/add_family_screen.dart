@@ -16,6 +16,7 @@ import 'package:cicl_app/src/widgets/common_widgets/date_picker_widget.dart';
 import 'package:cicl_app/src/widgets/family_widget/cnic_input_formtatter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -38,6 +39,7 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
   String? genderSeleted;
   List<PlatformFile> uploadedFiles = [];
   int _formResetCounter = 0;
+  bool _declarationAccepted = false;
 
   @override
   void initState() {
@@ -64,6 +66,14 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
     _dobCtrl.dispose();
     _cnicCtrl.dispose();
     super.dispose();
+  }
+
+  bool get _isFormReady {
+    return (_formKey.currentState?.validate() ?? false) &&
+        relationSeleted != null &&
+        genderSeleted != null &&
+        uploadedFiles.isNotEmpty &&
+        _declarationAccepted;
   }
 
   @override
@@ -116,6 +126,10 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
                     'Name Here',
                     isValidate: true,
                     val: AppValidation.checkText,
+                    keyboardType: TextInputType.name,
+                    inputFormatter: FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z\s]'),
+                    ),
                   ),
                   SizedBox(height: 1.h),
                   headingText("Date of Birth", true),
@@ -176,6 +190,33 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
                   ),
                   SizedBox(height: 1.h),
                   buildAddFamilyButton(),
+                  SizedBox(height: 2.h),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 30,
+                        height: 40,
+                        child: Checkbox(
+                          value: _declarationAccepted,
+                          onChanged: (val) {
+                            setState(() => _declarationAccepted = val ?? false);
+                          },
+                          activeColor: AppColors.buttonColor1,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "I hereby certify and acknowledge that the information provided is correct to the best of my knowledge and the Family Member submitted are legitimate - officially covered under the company’s rules.",
+                          maxLines: 4,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   SizedBox(height: 1.h),
                   _buildRestrictions(),
                 ],
@@ -229,12 +270,19 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
     bool isValidate = false,
     val,
     bool isCNIC = false,
+    TextInputType keyboardType = TextInputType.text,
+    TextInputFormatter? inputFormatter,
   }) {
     return CustomTextField(
       controller: controller,
       hintText: hint,
       validator: isValidate ? val : null,
-      inputFormatters: isCNIC ? [CnicInputFormatter()] : null,
+      inputFormatters: isCNIC
+          ? [CnicInputFormatter()]
+          : inputFormatter != null
+          ? [inputFormatter]
+          : null,
+      keyboardType: keyboardType,
       suffixIcon: isSuffix
           ? IconButton(
               onPressed: () {},
@@ -267,9 +315,17 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
         CustomButton(
           text: 'Add Family',
           fontSize: 15.sp,
-          textColor: AppColors.whiteColor,
+          textColor: _isFormReady ? AppColors.whiteColor : Colors.black54,
           onPressed: () {
-            if (_formKey.currentState?.validate() ?? false) {
+            if (!_isFormReady) {
+              if (!_declarationAccepted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Please accept the declaration to proceed"),
+                  ),
+                );
+                return;
+              }
               if (relationSeleted == null || genderSeleted == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -278,32 +334,84 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
                 );
                 return;
               }
-
-              if (uploadedFiles.isEmpty || uploadedFiles.first.path == null) {
+              if (uploadedFiles.isEmpty ||
+                  uploadedFiles.any((f) => f.path == null)) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Please select a valid file")),
+                  const SnackBar(
+                    content: Text("Please attach at least one valid file"),
+                  ),
                 );
                 return;
               }
-
-              final model = AddFamilyModel(
-                name: _nameCtrl.text.trim(),
-                dateOfBirth: _dobCtrl.text.trim(),
-                cnic: _cnicCtrl.text.trim(),
-                relation: relationSeleted!,
-                gender: genderSeleted!,
-                attachments: uploadedFiles
-                    .where((f) => f.path != null)
-                    .map((f) => File(f.path!))
-                    .toList(),
+              // If form fields are invalid
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Please fill all required fields correctly"),
+                ),
               );
-
-              ref.read(addFamilyProvider.notifier).addFamilyMember(model);
+              return;
             }
+
+            // proceed with submission
+            final model = AddFamilyModel(
+              name: _nameCtrl.text.trim(),
+              dateOfBirth: _dobCtrl.text.trim(),
+              cnic: _cnicCtrl.text.trim(),
+              relation: relationSeleted!,
+              gender: genderSeleted!,
+              attachments: uploadedFiles
+                  .where((f) => f.path != null)
+                  .map((f) => File(f.path!))
+                  .toList(),
+            );
+            ref.read(addFamilyProvider.notifier).addFamilyMember(model);
+            // if (_formKey.currentState?.validate() ?? false) {
+
+            //   if (relationSeleted == null || genderSeleted == null) {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       const SnackBar(
+            //         content: Text("Please select relation and gender"),
+            //       ),
+            //     );
+            //     return;
+            //   }
+
+            //   if (!_declarationAccepted) {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       const SnackBar(
+            //         content: Text("Please accept the declaration"),
+            //       ),
+            //     );
+            //     return;
+            //   }
+
+            //   if (uploadedFiles.isEmpty || uploadedFiles.first.path == null) {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       const SnackBar(content: Text("Please select a valid file")),
+            //     );
+            //     return;
+            //   }
+
+            //   final model = AddFamilyModel(
+            //     name: _nameCtrl.text.trim(),
+            //     dateOfBirth: _dobCtrl.text.trim(),
+            //     cnic: _cnicCtrl.text.trim(),
+            //     relation: relationSeleted!,
+            //     gender: genderSeleted!,
+            //     attachments: uploadedFiles
+            //         .where((f) => f.path != null)
+            //         .map((f) => File(f.path!))
+            //         .toList(),
+            //   );
+
+            //   ref.read(addFamilyProvider.notifier).addFamilyMember(model);
+            // }
           },
-          gradient: const LinearGradient(
-            colors: [AppColors.buttonColor1, AppColors.buttonColor2],
-          ),
+          gradient: _isFormReady
+              ? const LinearGradient(
+                  colors: [AppColors.buttonColor1, AppColors.buttonColor2],
+                )
+              : LinearGradient(colors: [Colors.grey, Colors.grey.shade400]),
         ),
       ],
     );

@@ -28,6 +28,8 @@ class AddFamilyController extends StateNotifier<AddFamilyState> {
         })
         ..fields.addAll(formFields);
 
+      
+
       for (int i = 0; i < model.attachments.length; i++) {
         final file = model.attachments[i];
         final fileName = file.path.split("/").last;

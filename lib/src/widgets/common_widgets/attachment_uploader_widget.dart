@@ -6,12 +6,24 @@ import 'package:image_picker/image_picker.dart';
 class AttachmentUploader extends FormField<List<PlatformFile>> {
   AttachmentUploader({
     super.key,
-    super.validator,
+    FormFieldValidator<List<PlatformFile>>? validator,
+    int maxFileSizeBytes = 2 * 1024 * 1024,
     required Function(List<PlatformFile>) onFilesChanged,
     List<PlatformFile>? initialValue,
     AutovalidateMode super.autovalidateMode = AutovalidateMode.disabled,
   }) : super(
           initialValue: initialValue ?? [],
+          validator: (files) {
+            final safeFiles = files ?? const <PlatformFile>[];
+            for (final file in safeFiles) {
+              if (file.size > maxFileSizeBytes) {
+                final maxMb = (maxFileSizeBytes / 1024 / 1024)
+                    .toStringAsFixed(0);
+                return 'File ${file.name} is too large (max ${maxMb}MB)';
+              }
+            }
+            return validator?.call(safeFiles);
+          },
           builder: (FormFieldState<List<PlatformFile>> state) {
             return _AttachmentUploaderContent(
               files: state.value ?? [],

@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'package:cicl_app/src/core/constants/api_url.dart';
+import 'package:cicl_app/src/core/services/logout_service.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/models/claim_model.dart/add_claim_model.dart';
+import 'package:cicl_app/src/routing/app_router.dart';
 import 'package:cicl_app/src/states/claim_state/add_claim_state.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:http/http.dart' as http;
 
@@ -29,6 +32,8 @@ class AddClaimController extends StateNotifier<AddClaimState> {
         request.fields.addAll(fields);
 
         for (int j = 0; j < item.attachments.length; j++) {
+          final file = item.attachments[j].file;
+          final size = await file.length();
           request.files.add(
             await http.MultipartFile.fromPath(
               "ClaimItems[$i][attachment][$j]",
@@ -37,6 +42,9 @@ class AddClaimController extends StateNotifier<AddClaimState> {
           );
         }
       }
+
+      request.fields.forEach((key, value) {
+      });
 
       final response = await request.send();
       final responseBody = await http.Response.fromStream(response);
@@ -69,11 +77,24 @@ class AddClaimController extends StateNotifier<AddClaimState> {
             errorMessage = rawErrors;
           }
 
-          state = state.copyWith(
-            loading: false,
-            error: errorMessage,
-          );
+          state = state.copyWith(loading: false, error: errorMessage);
         }
+      } else if (response.statusCode == 401) {
+        final ctx = rootNavigatorKey.currentContext;
+        if (ctx != null) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            const SnackBar(
+              content: Text('Your session has expired. Please login again.'),
+            ),
+          );
+          await LogoutService(StorageService()).logout(ctx);
+        } else {
+          await StorageService().fullLogout();
+        }
+        state = state.copyWith(
+          loading: false,
+          error: 'Session expired. Please login again.',
+        );
       } else {
         state = state.copyWith(
           loading: false,
