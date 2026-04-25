@@ -62,8 +62,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 child: GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 4,
                     // childAspectRatio: 1.0,
                   ),
                   itemCount: dummyInfoCardData.length,

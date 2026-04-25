@@ -11,9 +11,10 @@ import 'package:cicl_app/src/views/bottom_navigation/screens/profile/profile_scr
 import 'package:cicl_app/src/widgets/bottom_navigation_widget/custom_bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sizer/sizer.dart';
 
 class BottomNavigation extends ConsumerStatefulWidget {
-   final int initialIndex;
+  final int initialIndex;
   const BottomNavigation({super.key, this.initialIndex = 0});
 
   @override
@@ -37,11 +38,10 @@ class _BottomNavigationState extends ConsumerState<BottomNavigation> {
     // Ensure user session–dependent APIs are initialized whenever
     // the dashboard/bottom navigation is loaded.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(authControllerProvider.notifier)
-          .initializeUserSession(ref);
+      ref.read(authControllerProvider.notifier).initializeUserSession(ref);
     });
   }
+
   @override
   Widget build(BuildContext context) {
     // Whenever the bottom navigation index changes, lazily (re)fetch
@@ -50,9 +50,7 @@ class _BottomNavigationState extends ConsumerState<BottomNavigation> {
     ref.listen<int>(bottomNavigationProvider, (previous, next) {
       if (next == 1) {
         // Family tab
-        ref
-            .read(familyMemberControllerProvider.notifier)
-            .fetchFamilyMembers();
+        ref.read(familyMemberControllerProvider.notifier).fetchFamilyMembers();
       } else if (next == 2) {
         // Claim tab
         ref
@@ -73,45 +71,81 @@ class _BottomNavigationState extends ConsumerState<BottomNavigation> {
         if (_lastBackPressed == null ||
             now.difference(_lastBackPressed!) > const Duration(seconds: 10)) {
           _lastBackPressed = now;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Click again to exit')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Click again to exit')));
           return false;
         }
 
         return true;
       },
       child: Scaffold(
-        body: _screens[currentIndex],
-        bottomNavigationBar: SafeArea(
-          child: CustomBottomNavBar(
-            currentIndex: currentIndex,
-            onTap: (index) =>
-                ref.read(bottomNavigationProvider.notifier).setIndex(index),
-            items: [
-              BottomNavItem(
-                activeIcon: AppAssets.homeActiveIcon,
-                inactiveIcon: AppAssets.homeInacticeIcon,
-                label: 'Home',
+        body: Stack(
+          children: [
+            _screens[currentIndex],
+            Positioned(
+              left: 4.w,
+              right: 4.w,
+              bottom: 0,
+              child: CustomBottomNavBar(
+                currentIndex: currentIndex,
+                onTap: (index) =>
+                    ref.read(bottomNavigationProvider.notifier).setIndex(index),
+                items: [
+                  BottomNavItem(
+                    activeIcon: AppAssets.homeActiveIcon,
+                    inactiveIcon: AppAssets.homeInacticeIcon,
+                    label: 'Home',
+                  ),
+                  BottomNavItem(
+                    activeIcon: AppAssets.familyActiveIcon,
+                    inactiveIcon: AppAssets.familyInactiveIcon,
+                    label: 'Family',
+                  ),
+                  BottomNavItem(
+                    activeIcon: AppAssets.claimActiveIcon,
+                    inactiveIcon: AppAssets.claimInactiveIcon,
+                    label: 'Claim',
+                  ),
+                  BottomNavItem(
+                    activeIcon: AppAssets.profileActiveIcon,
+                    inactiveIcon: AppAssets.profielInActiveIcon,
+                    label: 'Profile',
+                  ),
+                ],
               ),
-              BottomNavItem(
-                activeIcon: AppAssets.familyActiveIcon,
-                inactiveIcon: AppAssets.familyInactiveIcon,
-                label: 'Family',
-              ),
-              BottomNavItem(
-                activeIcon: AppAssets.claimActiveIcon,
-                inactiveIcon: AppAssets.claimInactiveIcon,
-                label: 'Claim',
-              ),
-              BottomNavItem(
-                activeIcon: AppAssets.profileActiveIcon,
-                inactiveIcon: AppAssets.profielInActiveIcon,
-                label: 'Profile',
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
+        // bottomNavigationBar: SafeArea(
+        //   child: CustomBottomNavBar(
+        //     currentIndex: currentIndex,
+        //     onTap: (index) =>
+        //         ref.read(bottomNavigationProvider.notifier).setIndex(index),
+        //     items: [
+        //       BottomNavItem(
+        //         activeIcon: AppAssets.homeActiveIcon,
+        //         inactiveIcon: AppAssets.homeInacticeIcon,
+        //         label: 'Home',
+        //       ),
+        //       BottomNavItem(
+        //         activeIcon: AppAssets.familyActiveIcon,
+        //         inactiveIcon: AppAssets.familyInactiveIcon,
+        //         label: 'Family',
+        //       ),
+        //       BottomNavItem(
+        //         activeIcon: AppAssets.claimActiveIcon,
+        //         inactiveIcon: AppAssets.claimInactiveIcon,
+        //         label: 'Claim',
+        //       ),
+        //       BottomNavItem(
+        //         activeIcon: AppAssets.profileActiveIcon,
+        //         inactiveIcon: AppAssets.profielInActiveIcon,
+        //         label: 'Profile',
+        //       ),
+        //     ],
+        //   ),
+        // ),
       ),
     );
   }

@@ -20,11 +20,12 @@ class CustomBottomNavBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
+      alignment: Alignment.center,
       width: double.infinity,
-      padding: EdgeInsets.all(0.2.h),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.whiteColor,
-        boxShadow: [
+        borderRadius: BorderRadius.circular(4.h),
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 14,
@@ -41,21 +42,19 @@ class CustomBottomNavBar extends ConsumerWidget {
         unselectedItemColor: AppColors.greyColor,
         showUnselectedLabels: true,
         onTap: onTap,
-        items: items.asMap().entries.map(
-          (entry) {
-            final index = entry.key;
-            final item = entry.value;
-            final isActive = index == currentIndex;
+        items: items.asMap().entries.map((entry) {
+          final index = entry.key;
+          final item = entry.value;
+          final isActive = index == currentIndex;
 
-            return BottomNavigationBarItem(
-              icon: SvgPicture.asset(
-                isActive ? item.activeIcon : item.inactiveIcon,
-                height: 4.h,
-              ),
-              label: item.label,
-            );
-          },
-        ).toList(),
+          return BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              isActive ? item.activeIcon : item.inactiveIcon,
+              height: 4.h,
+            ),
+            label: item.label,
+          );
+        }).toList(),
       ),
     );
   }
