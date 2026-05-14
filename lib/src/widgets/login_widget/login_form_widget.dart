@@ -175,7 +175,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
             context.go('/dashboardscreen', extra: 0);
           }
         } else {
-          // Show error SnackBar for login failure
+          // Show error SnackBar for login failures
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
