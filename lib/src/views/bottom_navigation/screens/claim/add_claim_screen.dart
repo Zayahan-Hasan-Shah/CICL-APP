@@ -40,7 +40,9 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
   final List<String?> _patients = [];
   final List<String?> _benefitTypes = [];
   final List<List<PlatformFile>> _uploadedFilesList = [];
-  List<String> _patientNames = []; // Add this line
+  List<String> _patientNames = [];
+  // Map from patient display-name to their card_number
+  final Map<String, String> _patientCardNumbers = {};
 
   bool _declarationAccepted = false;
   int _formResetCounter = 0;
@@ -72,10 +74,25 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
   Future<void> _loadPatientNames() async {
     final storage = StorageService();
     final userName = await storage.getName() ?? '';
+    final userCardNumber = await storage.getCardNumber() ?? '';
     final familyNames = await storage.getFamilyNames();
+    final familyCardNumbers = await storage.getFamilyCardNumbers();
+
+    final Map<String, String> cardMap = {};
+    if (userName.isNotEmpty) {
+      cardMap[userName] = userCardNumber;
+    }
+    for (int i = 0; i < familyNames.length; i++) {
+      final name = familyNames[i];
+      final card = i < familyCardNumbers.length ? familyCardNumbers[i] : '';
+      cardMap[name] = card;
+    }
 
     setState(() {
       _patientNames = [userName, ...familyNames];
+      _patientCardNumbers
+        ..clear()
+        ..addAll(cardMap);
     });
   }
 
@@ -206,17 +223,22 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
     }
 
     final storage = StorageService();
-    // employeeNo should always be the cardNumber saved at login
-    final cardNumber = (await storage.getCardNumber()) ?? '';
+    // Fallback: current user's own card number
+    final userCardNumber = (await storage.getCardNumber()) ?? '';
 
     final claims = List.generate(_billNoControllers.length, (index) {
       final benefitType = _benefitTypes[index];
       final isHospital = benefitType == "Hospital";
+      final selectedPatient = _patients[index] ?? '';
+
+      // Use the selected patient's card number if available,
+      // otherwise fall back to the current user's card number.
+      final employeeNo =
+          _patientCardNumbers[selectedPatient]?.isNotEmpty == true
+              ? _patientCardNumbers[selectedPatient]!
+              : userCardNumber;
 
       // Map selected benefit type to correct service code
-      // Hospital      -> 20001 (HOSPITALIZATION)
-      // OPD           -> 70005 (OUT-PATIENT-MARRIED)
-      // Dental Treat. -> 70003 (DENTAL TREATMENT)
       String serviceCode;
       switch (benefitType) {
         case "Hospital":
@@ -236,7 +258,7 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
           ClaimItem(
             billNo: _billNoControllers[index].text.trim(),
             billDate: _billDateControllers[index].text.trim(),
-            employeeNo: cardNumber,
+            employeeNo: employeeNo,
             serviceCode: serviceCode,
             billAmount: _billAmountControllers[index].text.trim(),
             hospital: _hosLabClinDrControllers[index].text.trim(),

@@ -43,8 +43,7 @@ class AddClaimController extends StateNotifier<AddClaimState> {
         }
       }
 
-      request.fields.forEach((key, value) {
-      });
+      request.fields.forEach((key, value) {});
 
       final response = await request.send();
       final responseBody = await http.Response.fromStream(response);
