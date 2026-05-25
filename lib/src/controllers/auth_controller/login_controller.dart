@@ -164,7 +164,7 @@ class AuthController extends StateNotifier<AuthState> {
 
         await _storageService.saveUserAndFamilyNames(
           userName: user.name,
-          familyNames: familyNames,
+          familyMembers: familyNames,
         );
       } catch (e) {}
     });

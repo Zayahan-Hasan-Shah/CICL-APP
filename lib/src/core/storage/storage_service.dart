@@ -7,6 +7,7 @@ class StorageService {
   static const _accesstoken = 'access_token';
   static const _tokenExpiry = 'token_expiry';
   static const _familyNames = 'family_names';
+  static const _familyCardNumbers = 'family_card_numbers';
   static const _cardNumber = 'card_number';
   static const _claimSeqNos = 'claim_seq_nos';
   static const _isMarried = "is_married";
@@ -81,14 +82,28 @@ class StorageService {
 
   Future<void> saveUserAndFamilyNames({
     required String userName,
-    required List<FamilyModel> familyNames,
+    required List<FamilyModel> familyMembers,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userame, userName);
     await prefs.setStringList(
       _familyNames,
-      familyNames.map((e) => e.name).toList(),
+      familyMembers.map((e) => e.name).toList(),
     );
+    await prefs.setStringList(
+      _familyCardNumbers,
+      familyMembers.map((e) => e.cardNumber).toList(),
+    );
+  }
+
+  Future<void> saveFamilyCardNumbers(List<String> cardNumbers) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_familyCardNumbers, cardNumbers);
+  }
+
+  Future<List<String>> getFamilyCardNumbers() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(_familyCardNumbers) ?? [];
   }
 
   Future<List<String>> getFamilyNames() async {

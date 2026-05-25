@@ -33,7 +33,7 @@ class FamilyController extends StateNotifier<FamilyState> {
         final userName = await storage.getName() ?? '';
         await storage.saveUserAndFamilyNames(
           userName: userName,
-          familyNames: familyMembers,
+          familyMembers: familyMembers,
         );
 
         state = state.copyWith(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/core/constants/app_launcher_manager.dart';
@@ -10,6 +12,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
+import 'package:upgrader/upgrader.dart';
+
+/// Custom upgrader messages that override the default English strings.
+class _CiclUpgraderMessages extends UpgraderMessages {
+  @override
+  String get title => 'New Update Available';
+
+  @override
+  String get body =>
+      'A new version of the CICL app is available. '
+      'Please update to continue using the app.';
+
+  @override
+  String get buttonTitleUpdate => 'Update Now';
+}
+
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -109,41 +127,58 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      body: SafeArea(
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: BoxDecoration(
-            color: AppColors.backgroundColor,
-            image: DecorationImage(
-              image: AssetImage(AppAssets.backgroundImage),
-              fit: BoxFit.cover,
-              colorFilter: ColorFilter.mode(
-                AppColors.backgroundColor.withValues(alpha: 0.2),
-                BlendMode.srcATop,
+    return UpgradeAlert(
+      // ── Force-update settings ──────────────────────────────────────────
+      barrierDismissible: false,   // tapping outside does nothing
+      showIgnore: false,           // no "Ignore" button
+      showLater: false,            // no "Later" / "Skip" button
+      showReleaseNotes: false,     // keep dialog clean
+      dialogStyle: Platform.isIOS
+          ? UpgradeDialogStyle.cupertino
+          : UpgradeDialogStyle.material,
+      upgrader: Upgrader(
+        // Re-prompt on every launch — no cooldown
+        durationUntilAlertAgain: Duration.zero,
+        // Custom CICL messages
+        messages: _CiclUpgraderMessages(),
+      ),
+      // ──────────────────────────────────────────────────────────────────
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        body: SafeArea(
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              color: AppColors.backgroundColor,
+              image: DecorationImage(
+                image: AssetImage(AppAssets.backgroundImage),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  AppColors.backgroundColor.withValues(alpha: 0.2),
+                  BlendMode.srcATop,
+                ),
               ),
             ),
-          ),
-          child: Center(
-            child: AnimatedBuilder(
-              animation: _animation!,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _animation?.value ?? 1,
-                  child: Transform.scale(
-                    scale: _animation?.value,
-                    child: child,
-                  ),
-                );
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(AppAssets.logoImage, height: 20.h),
-                  Image.asset(AppAssets.textLogoImage, height: 6.h),
-                ],
+            child: Center(
+              child: AnimatedBuilder(
+                animation: _animation!,
+                builder: (context, child) {
+                  return Opacity(
+                    opacity: _animation?.value ?? 1,
+                    child: Transform.scale(
+                      scale: _animation?.value,
+                      child: child,
+                    ),
+                  );
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(AppAssets.logoImage, height: 20.h),
+                    Image.asset(AppAssets.textLogoImage, height: 6.h),
+                  ],
+                ),
               ),
             ),
           ),
