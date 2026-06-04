@@ -441,6 +441,7 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
                           });
                           if (files.isNotEmpty) {
                             final navigator = Navigator.of(context);
+                            bool isDialogOpen = true;
                             showDialog(
                               context: context,
                               barrierDismissible: true,
@@ -451,11 +452,13 @@ class _AddClaimScreenState extends ConsumerState<AddClaimScreen> {
                                   ),
                                 );
                               },
-                            );
+                            ).then((_) {
+                              isDialogOpen = false;
+                            });
 
                             Future.delayed(const Duration(seconds: 3), () {
                               if (!mounted) return;
-                              if (navigator.canPop()) {
+                              if (isDialogOpen) {
                                 navigator.pop();
                               }
                             });
