@@ -17,6 +17,11 @@ class StorageService {
   static const _fingerprintPassword = 'fingerprint_password';
   static const _fingerprintEnabled = 'fingerprint_enabled';
 
+  // New constants for Face ID login
+  static const _faceIdEmail = 'face_id_email';
+  static const _faceIdPassword = 'face_id_password';
+  static const _faceIdEnabled = 'face_id_enabled';
+
   Future<void> saveIsMarried(String married) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -322,9 +327,7 @@ class StorageService {
       // Remove specific keys related to user session
       await prefs.remove(_familyNames);
 
-      // Preserve fingerprint login credentials
-      final fingerprintEmail = prefs.getString(_fingerprintEmail);
-      final fingerprintEnabled = prefs.getBool(_fingerprintEnabled);
+      // Note: since we only clear _familyNames, fingerprint and Face ID credentials are implicitly preserved.
 
       // Remove user-specific tokens and names
       // await prefs.remove(_userame);
@@ -345,6 +348,11 @@ class StorageService {
       final fingerprintPassword = prefs.getString(_fingerprintPassword);
       final fingerprintEnabled = prefs.getBool(_fingerprintEnabled);
 
+      // Preserve Face ID login credentials
+      final faceIdEmail = prefs.getString(_faceIdEmail);
+      final faceIdPassword = prefs.getString(_faceIdPassword);
+      final faceIdEnabled = prefs.getBool(_faceIdEnabled);
+
       // Clear ALL preferences
       await prefs.clear();
 
@@ -356,8 +364,102 @@ class StorageService {
         await prefs.setString(_fingerprintPassword, fingerprintPassword);
         await prefs.setBool(_fingerprintEnabled, true);
       }
+
+      // Restore Face ID login credentials if they exist
+      if (faceIdEmail != null &&
+          faceIdPassword != null &&
+          faceIdEnabled == true) {
+        await prefs.setString(_faceIdEmail, faceIdEmail);
+        await prefs.setString(_faceIdPassword, faceIdPassword);
+        await prefs.setBool(_faceIdEnabled, true);
+      }
     } catch (e) {
       rethrow;
+    }
+  }
+
+  // Face ID Login Methods
+  Future<void> enableFaceIdLogin(String email, String password) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Ensure both email and password are valid
+      if (email.isEmpty || password.isEmpty) {
+        return;
+      }
+
+      // Basic obfuscation (NOT secure encryption - for production, use more robust encryption)
+      final encodedEmail = base64Encode(utf8.encode(email));
+      final encodedPassword = base64Encode(utf8.encode(password));
+
+      // Explicitly set all required keys
+      await prefs.setString(_faceIdEmail, encodedEmail);
+      await prefs.setString(_faceIdPassword, encodedPassword);
+      await prefs.setBool(_faceIdEnabled, true);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> disableFaceIdLogin() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.remove(_faceIdEmail);
+      await prefs.remove(_faceIdPassword);
+      await prefs.remove(_faceIdEnabled);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> isFaceIdLoginEnabled() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      // Check multiple conditions
+      final isEnabledFlag = prefs.getBool(_faceIdEnabled) ?? false;
+      final hasEmail = prefs.getString(_faceIdEmail) != null;
+      final hasPassword = prefs.getString(_faceIdPassword) != null;
+
+      final isEnabled = isEnabledFlag && hasEmail && hasPassword;
+
+      return isEnabled;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<Map<String, String>?> getFaceIdCredentials() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+
+      final encodedEmail = prefs.getString(_faceIdEmail);
+      final encodedPassword = prefs.getString(_faceIdPassword);
+
+      if (encodedEmail == null || encodedPassword == null) {
+        return null;
+      }
+
+      // Decode credentials with additional error handling
+      String? email;
+      String? password;
+
+      try {
+        email = utf8.decode(base64Decode(encodedEmail));
+        password = utf8.decode(base64Decode(encodedPassword));
+      } catch (e) {
+        return null;
+      }
+
+      // Validate decoded credentials
+      if (email.isEmpty || password.isEmpty) {
+        return null;
+      }
+
+      return {'email': email, 'password': password};
+    } catch (e) {
+      return null;
     }
   }
 

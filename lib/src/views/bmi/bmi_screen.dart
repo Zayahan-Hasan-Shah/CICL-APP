@@ -124,6 +124,8 @@ class _BmiScreenState extends ConsumerState<BmiScreen> {
                         SizedBox(height: 3.h),
                         _resultCard(bmiState),
                       ],
+                      SizedBox(height: 3.h),
+                      _disclaimerAndSource(),
                     ],
                   ),
                 ),
@@ -386,4 +388,51 @@ class _BmiScreenState extends ConsumerState<BmiScreen> {
       ),
     ],
   );
+
+  Widget _disclaimerAndSource() {
+    return Container(
+      padding: EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.info_outline, color: AppColors.buttonColor1, size: 18.sp),
+              SizedBox(width: 2.w),
+              CustomText(
+                title: "Medical Disclaimer & Source",
+                fontSize: 15.sp,
+                weight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ],
+          ),
+          SizedBox(height: 1.h),
+          Text(
+            "This BMI Calculator provides estimations for informational and educational purposes only. The Body Mass Index (BMI) categories and calculations are based on the international standards established by the World Health Organization (WHO).",
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: Colors.grey.shade700,
+              height: 1.4,
+            ),
+          ),
+          SizedBox(height: 1.h),
+          Text(
+            "Important: BMI is a general measure and does not account for muscle mass, bone structure, or overall body composition. This tool is not a substitute for professional medical advice, diagnosis, or treatment. Please consult with a physician or a qualified healthcare provider before making any medical decisions.",
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade800,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

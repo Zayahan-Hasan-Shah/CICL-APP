@@ -11,18 +11,23 @@ Future<void> main() async {
 
   try {
     final securityContext = SecurityContext(withTrustedRoots: true);
-    ByteData? pem;
+    ByteData? certData;
     try {
-      pem = await rootBundle.load('assets/cert/license.pem');
+      certData = await rootBundle.load('assets/cert/certificate.der');
     } catch (_) {
-      pem = await rootBundle.load('assets/cert/certificate.pem');
+      try {
+        certData = await rootBundle.load('assets/cert/license.pem');
+      } catch (_) {
+        certData = await rootBundle.load('assets/cert/certificate.pem');
+      }
     }
 
-    final pemBytes = pem.buffer
-        .asUint8List(pem.offsetInBytes, pem.lengthInBytes);
-    securityContext.setTrustedCertificatesBytes(pemBytes);
+    final certBytes = certData.buffer
+        .asUint8List(certData.offsetInBytes, certData.lengthInBytes);
+    securityContext.setTrustedCertificatesBytes(certBytes);
     HttpOverrides.global = _CertHttpOverrides(securityContext);
   } catch (_) {}
+
 
   runApp(ProviderScope(
     child: Sizer(builder: (context, orientation, deviceType) {

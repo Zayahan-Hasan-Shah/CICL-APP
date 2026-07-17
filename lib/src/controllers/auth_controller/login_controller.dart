@@ -114,7 +114,7 @@ class AuthController extends StateNotifier<AuthState> {
       }
     } on SocketException catch (_) {
       throw NetworkException(
-        "No Internet connection. Please check your network.", 
+        "Unable to connect to the server. Please check your network connection or try again later.", 
       );
     } on TimeoutException catch (_) {
       throw NetworkException("The request timed out. Please try again.");

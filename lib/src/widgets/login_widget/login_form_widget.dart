@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/core/validations/app_validation.dart';
 import 'package:cicl_app/src/providers/auth_provider/login_provider.dart';
 import 'package:cicl_app/src/providers/auth_provider/fingerprint_auth_provider.dart';
+import 'package:cicl_app/src/providers/auth_provider/face_id_auth_provider.dart';
 import 'package:cicl_app/src/routing/routes_names.dart';
 import 'package:cicl_app/src/states/auth_state/login_state.dart';
 import 'package:cicl_app/src/widgets/common_widgets/custom_button.dart';
@@ -19,11 +21,13 @@ import 'package:sizer/sizer.dart';
 class LoginFormWidget extends ConsumerStatefulWidget {
   final VoidCallback? onLoginSuccess;
   final bool enableFingerprintOption;
+  final bool enableFaceIdOption;
 
   const LoginFormWidget({
     super.key,
     this.onLoginSuccess,
     this.enableFingerprintOption = true,
+    this.enableFaceIdOption = true,
   });
 
   @override
@@ -36,6 +40,7 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _enableFingerprintLogin = false;
+  bool _enableFaceIdLogin = false;
   bool _showEmailSuffix = false;
   bool _showPasswordSuffix = false;
 
@@ -125,7 +130,45 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
             ),
           );
 
-          // If fingerprint login is enabled, set it up
+          // If biometric login is enabled, set it up
+          // Setup Face ID login if enabled (iOS only)
+          if (Platform.isIOS && _enableFaceIdLogin && widget.enableFaceIdOption) {
+            // Show a dialog to confirm Face ID login setup
+            final confirmSetup = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Enable Face ID Login'),
+                content: const Text(
+                  'Do you want to enable Face ID login for this account?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => context.pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => context.pop(true),
+                    child: const Text('Enable'),
+                  ),
+                ],
+              ),
+            );
+
+            if (confirmSetup == true) {
+              // Explicitly enable Face ID login before setup
+              final storageService = StorageService();
+              await storageService.enableFaceIdLogin(username, password);
+
+              // Setup Face ID login
+              await ref
+                  .read(faceIdAuthProvider.notifier)
+                  .setupFaceIdLogin(username, password, ref);
+            }
+          }
+
+          if (!mounted) return;
+
+          // Setup fingerprint login if enabled (iOS and Android)
           if (_enableFingerprintLogin && widget.enableFingerprintOption) {
             // Show a dialog to confirm fingerprint login setup
             final confirmSetup = await showDialog<bool>(
@@ -157,11 +200,6 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
               await ref
                   .read(fingerprintAuthProvider.notifier)
                   .setupFingerprintLogin(username, password, ref);
-
-              if (!mounted) return;
-              // Verify fingerprint login is enabled
-              final isEnabled = await storageService
-                  .isFingerprintLoginEnabled();
             }
           }
 
@@ -263,20 +301,51 @@ class _LoginFormWidgetState extends ConsumerState<LoginFormWidget> {
             ],
           ),
           SizedBox(height: 0.5.h),
-          if (widget.enableFingerprintOption)
-            Row(
-              children: [
-                Checkbox(
-                  value: _enableFingerprintLogin,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      _enableFingerprintLogin = value ?? false;
-                    });
-                  },
-                ),
-                const Text('Enable Fingerprint Login'),
-              ],
-            ),
+          if (Platform.isIOS) ...[
+            if (widget.enableFaceIdOption)
+              Row(
+                children: [
+                  Checkbox(
+                    value: _enableFaceIdLogin,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _enableFaceIdLogin = value ?? false;
+                      });
+                    },
+                  ),
+                  const Text('Enable Face ID Login'),
+                ],
+              ),
+            if (widget.enableFingerprintOption)
+              Row(
+                children: [
+                  Checkbox(
+                    value: _enableFingerprintLogin,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _enableFingerprintLogin = value ?? false;
+                      });
+                    },
+                  ),
+                  const Text('Enable Fingerprint Login'),
+                ],
+              ),
+          ] else ...[
+            if (widget.enableFingerprintOption)
+              Row(
+                children: [
+                  Checkbox(
+                    value: _enableFingerprintLogin,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _enableFingerprintLogin = value ?? false;
+                      });
+                    },
+                  ),
+                  const Text('Enable Fingerprint Login'),
+                ],
+              ),
+          ],
           SizedBox(height: 2.h),
           SizedBox(
             width: double.infinity,
