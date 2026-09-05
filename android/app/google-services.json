@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "632035036466",
+    "project_id": "centralhealthcare",
+    "storage_bucket": "centralhealthcare.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:632035036466:android:88be10837a1b08fb021b2b",
+        "android_client_info": {
+          "package_name": "app.cicl.centralhealthcare"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPhc-Nlm63YjJ7IyKoSRI5MCDm4fR6l3c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
