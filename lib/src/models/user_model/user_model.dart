@@ -34,7 +34,7 @@ class UserModel {
 
     return UserModel(
       accessToken: json['access-token'] ?? '',
-      clientCode: json['client_code'] ?? '',
+      clientCode: (json['client_code'] ?? '').toString(),
       branchCode: json['branch_code'] ?? 0,
       cardNumber: json['card_number'] ?? '',
       name: json['name'] ?? '',

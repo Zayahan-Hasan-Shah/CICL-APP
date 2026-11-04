@@ -35,6 +35,12 @@ class FamilyController extends StateNotifier<FamilyState> {
           userName: userName,
           familyMembers: familyMembers,
         );
+        if (familyMembers.isNotEmpty && familyMembers.first.clientCode.isNotEmpty) {
+          final currentCode = await storage.getClientCode();
+          if (currentCode == null || currentCode.isEmpty) {
+            await storage.saveClientCode(familyMembers.first.clientCode);
+          }
+        }
 
         state = state.copyWith(
           loading: false,
