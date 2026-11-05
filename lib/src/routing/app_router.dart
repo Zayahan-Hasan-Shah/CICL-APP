@@ -19,13 +19,16 @@ import 'package:cicl_app/src/views/on_boarding/boarding_screen.dart';
 import 'package:cicl_app/src/views/on_boarding/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
 class AppRouter {
   static final router = GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: RoutesNames.splasScreen,
+    observers: [FirebaseAnalyticsObserver(analytics: analytics),],
     routes: [
       GoRoute(
         path: RoutesNames.splasScreen,

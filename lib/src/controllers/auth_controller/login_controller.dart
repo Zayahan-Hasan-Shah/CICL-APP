@@ -48,6 +48,7 @@ class AuthController extends StateNotifier<AuthState> {
             married: user.married,
           );
           await _storageService.saveCardNumber(user.cardNumber);
+          await _storageService.saveClientCode(user.clientCode);
           return user;
         }
       }
@@ -140,6 +141,7 @@ class AuthController extends StateNotifier<AuthState> {
       _storageService.saveAccessToken(user.accessToken),
       _storageService.saveCardNumber(user.cardNumber),
       _storageService.saveName(user.name),
+      _storageService.saveClientCode(user.clientCode),
     ]);
   }
 

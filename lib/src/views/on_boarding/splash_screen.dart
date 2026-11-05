@@ -6,6 +6,7 @@ import 'package:cicl_app/src/core/constants/app_launcher_manager.dart';
 import 'package:cicl_app/src/core/constants/api_url.dart';
 import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/providers/auth_provider/login_provider.dart';
+import 'package:cicl_app/src/routing/app_router.dart';
 import 'package:cicl_app/src/routing/routes_names.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,6 +41,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     with TickerProviderStateMixin {
   AnimationController? _controller;
   Animation<double>? _animation;
+  late final Upgrader _upgrader;
 
   Future<bool> _verifyTokenWithServer(String token) async {
     try {
@@ -63,6 +65,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   void initState() {
     super.initState();
 
+    _upgrader = Upgrader(
+      // Re-prompt on every launch — no cooldown
+      durationUntilAlertAgain: Duration.zero,
+      // Custom CICL messages
+      messages: _CiclUpgraderMessages(),
+    );
+
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
@@ -71,63 +80,88 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     _animation = CurvedAnimation(parent: _controller!, curve: Curves.easeInOut);
 
     _controller?.forward();
-    Future.delayed(const Duration(seconds: 3), () async {
+    _handleAppStart();
+  }
+
+  Future<void> _handleAppStart() async {
+    try {
+      // Run the splash animation duration (3s) and the store version check in parallel
+      await Future.wait([
+        Future.delayed(const Duration(seconds: 3)),
+        _initUpgrader(),
+      ]);
+
       if (!mounted) return;
-      try {
-        final firstLaunch = await AppLaunchManager.isFirstLaunch();
+
+      // Force update: If a newer version is available in the store, stop navigation!
+      // The user will stay on the splash screen and UpgradeAlert will show/hold the update dialog.
+      if (_upgrader.shouldDisplayUpgrade()) {
+        return;
+      }
+
+      final firstLaunch = await AppLaunchManager.isFirstLaunch();
+      if (!mounted) return;
+      if (firstLaunch) {
+        context.go(RoutesNames.onBoardingScreen);
+      } else {
+        // Check for existing valid login token
+        final storageService = StorageService();
+        final isLoggedIn = await storageService.isTokenValid();
         if (!mounted) return;
-        if (firstLaunch) {
-          context.go(RoutesNames.onBoardingScreen);
-        } else {
-          // Check for existing valid login token
-          final storageService = StorageService();
-          final isLoggedIn = await storageService.isTokenValid();
+
+        if (isLoggedIn) {
+          final token = await storageService.getAccessToken();
           if (!mounted) return;
 
-          if (isLoggedIn) {
-            final token = await storageService.getAccessToken();
-            if (!mounted) return;
-
-            if (token == null || token.isEmpty) {
-              context.go(RoutesNames.loginScreen);
-              return;
-            }
-
-            final serverValid = await _verifyTokenWithServer(token);
-            if (!mounted) return;
-
-            if (!serverValid) {
-              await storageService.fullLogout();
-              if (!mounted) return;
-              context.go(RoutesNames.loginScreen);
-              return;
-            }
-
-            await ref
-                .read(authControllerProvider.notifier)
-                .initializeUserSession(ref);
-            if (!mounted) return;
-            context.go(RoutesNames.dashboardScreen, extra: 0);
-          } else {
+          if (token == null || token.isEmpty) {
             context.go(RoutesNames.loginScreen);
+            return;
           }
+
+          final serverValid = await _verifyTokenWithServer(token);
+          if (!mounted) return;
+
+          if (!serverValid) {
+            await storageService.fullLogout();
+            if (!mounted) return;
+            context.go(RoutesNames.loginScreen);
+            return;
+          }
+
+          await ref
+              .read(authControllerProvider.notifier)
+              .initializeUserSession(ref);
+          if (!mounted) return;
+          context.go(RoutesNames.dashboardScreen, extra: 0);
+        } else {
+          context.go(RoutesNames.loginScreen);
         }
-      } catch (e) {
-        if (!mounted) return;
-        context.go(RoutesNames.loginScreen);
       }
-    });
+    } catch (e) {
+      if (!mounted) return;
+      context.go(RoutesNames.loginScreen);
+    }
+  }
+
+  Future<void> _initUpgrader() async {
+    try {
+      await _upgrader.initialize().timeout(const Duration(seconds: 4));
+    } catch (_) {
+      // Timeout or network error - fail safely without blocking the app flow
+    }
   }
 
   @override
   void dispose() {
     _controller?.dispose();
+    _upgrader.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return UpgradeAlert(
+      navigatorKey: rootNavigatorKey,
       // ── Force-update settings ──────────────────────────────────────────
       barrierDismissible: false,   // tapping outside does nothing
       showIgnore: false,           // no "Ignore" button
@@ -136,12 +170,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       dialogStyle: Platform.isIOS
           ? UpgradeDialogStyle.cupertino
           : UpgradeDialogStyle.material,
-      upgrader: Upgrader(
-        // Re-prompt on every launch — no cooldown
-        durationUntilAlertAgain: Duration.zero,
-        // Custom CICL messages
-        messages: _CiclUpgraderMessages(),
-      ),
+      upgrader: _upgrader,
       // ──────────────────────────────────────────────────────────────────
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,

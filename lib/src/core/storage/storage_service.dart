@@ -11,6 +11,7 @@ class StorageService {
   static const _cardNumber = 'card_number';
   static const _claimSeqNos = 'claim_seq_nos';
   static const _isMarried = "is_married";
+  static const _clientCode = "client_code";
 
   // New constants for fingerprint login
   static const _fingerprintEmail = 'fingerprint_email';
@@ -35,6 +36,23 @@ class StorageService {
       final married = prefs.getString(_isMarried);
       if (married == null || married.isEmpty) {}
       return married;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<void> saveClientCode(String clientCode) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_clientCode, clientCode);
+    } catch (_) {}
+  }
+
+  Future<String?> getClientCode() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final clientCode = prefs.getString(_clientCode);
+      return clientCode;
     } catch (e) {
       return null;
     }
@@ -326,6 +344,7 @@ class StorageService {
 
       // Remove specific keys related to user session
       await prefs.remove(_familyNames);
+      await prefs.remove(_clientCode);
 
       // Note: since we only clear _familyNames, fingerprint and Face ID credentials are implicitly preserved.
 

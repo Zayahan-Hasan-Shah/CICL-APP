@@ -25,6 +25,15 @@ class CardDetailsController extends StateNotifier<CardDetailsState> {
       if (response.statusCode == 200) {
         final result = cardDetailsResponseFromJson(response.body);
         if (result.data != null) {
+          if (result.data!.familyMembers.isNotEmpty &&
+              result.data!.familyMembers.first.clientCode.isNotEmpty) {
+            final currentCode = await StorageService().getClientCode();
+            if (currentCode == null || currentCode.isEmpty) {
+              await StorageService().saveClientCode(
+                result.data!.familyMembers.first.clientCode,
+              );
+            }
+          }
           state = state.copyWith(isLoading: false, data: result.data);
         } else {
           state = state.copyWith(isLoading: false, error: "No data found");

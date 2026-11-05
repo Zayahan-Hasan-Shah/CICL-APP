@@ -3,9 +3,13 @@ import 'dart:io';
 import 'package:cicl_app/src/core/constants/app_assets.dart';
 import 'package:cicl_app/src/core/constants/app_colors.dart';
 import 'package:cicl_app/src/core/constants/app_text.dart';
+import 'package:cicl_app/src/core/storage/storage_service.dart';
 import 'package:cicl_app/src/core/validations/app_validation.dart';
 import 'package:cicl_app/src/models/family_model/add_family_model.dart';
+import 'package:cicl_app/src/providers/auth_provider/login_provider.dart';
 import 'package:cicl_app/src/providers/family_provider/add_family_riverpod.dart';
+import 'package:cicl_app/src/providers/family_provider/family_provider.dart';
+import 'package:cicl_app/src/states/auth_state/login_state.dart';
 import 'package:cicl_app/src/states/family_state/add_family_state.dart';
 import 'package:cicl_app/src/widgets/common_widgets/attachment_uploader_widget.dart';
 import 'package:cicl_app/src/widgets/common_widgets/custom_button.dart';
@@ -41,9 +45,21 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
   int _formResetCounter = 0;
   bool _declarationAccepted = false;
 
+  String? _clientCode;
+
   @override
   void initState() {
     super.initState();
+    _loadClientCode();
+  }
+
+  Future<void> _loadClientCode() async {
+    final code = await StorageService().getClientCode();
+    if (mounted && code != null && code.isNotEmpty) {
+      setState(() {
+        _clientCode = code;
+      });
+    }
   }
 
   void _resetForm() {
@@ -78,6 +94,33 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authControllerProvider);
+    String? effectiveClientCode = _clientCode;
+    if (effectiveClientCode == null || effectiveClientCode.isEmpty) {
+      if (authState is AuthSuccess) {
+        effectiveClientCode = authState.user.clientCode;
+      } else {
+        final family = ref.watch(familyMemberControllerProvider).family;
+        if (family.isNotEmpty) {
+          effectiveClientCode = family.first.clientCode;
+        }
+      }
+    }
+
+    final bool isEligibleForParent =
+        (effectiveClientCode ?? '').trim().toUpperCase() == 'LGC00000';
+
+    if (!isEligibleForParent && relationSeleted == "Parent") {
+      relationSeleted = null;
+    }
+
+    final List<String> relationItems = [
+      "Spouse",
+      "Son",
+      "Daughter",
+      if (isEligibleForParent) "Parent",
+    ];
+
     ref.listen<AddFamilyState>(addFamilyProvider, (prev, next) {
       if (prev?.loading == true && next.loading == false) {
         if (next.message != null) {
@@ -156,7 +199,7 @@ class _AddFamilyScreenState extends ConsumerState<AddFamilyScreen> {
                   headingText("Relation", true),
                   SizedBox(height: 1.h),
                   CustomDropdown(
-                    items: ["Spouse", "Son", "Daughter", "Parent"],
+                    items: relationItems,
                     selectedItem: relationSeleted,
                     onChanged: (value) {
                       setState(() {
